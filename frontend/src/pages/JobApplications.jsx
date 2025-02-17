@@ -41,22 +41,29 @@ const JobApplications = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 text-stone-950">
-            <h1 className="text-3xl font-bold text-center text-stone-950">Applicants for Job {applicants[0].jobName}</h1>
+            <h1 className="text-3xl font-bold text-center text-stone-950">Applicants</h1>
             <div className="p-4 mt-4 space-y-4 flex flex-col justify-center">
-                {applicants.map((applicant) => (
-                    <div key={applicant.applicationId} className="p-4 w-[80vw] mx-auto border rounded shadow-md">
-                        <h3 className="text-lg font-semibold">{applicant.studentName}</h3>
-                        <p>PRN: {applicant.prn}</p>
-                        <p>Application ID: {applicant.applicationId}</p>
-                        <p>Date Applied: {new Date(applicant.dateApplied).toLocaleString()}</p>
-                    </div>
-                ))}
-                <button
-                    onClick={() => handleExport(jobId)}
-                    className="text-white w-[20vw] mx-auto bg-blue-500 px-4 py-2 rounded"
-                >
-                    Export to Excel
-                </button>
+                {applicants.length > 0 ?
+                    applicants.map((applicant) => (
+                        <div key={applicant.applicationId} className="p-4 w-[80vw] mx-auto border rounded shadow-md">
+                            <h3 className="text-lg font-semibold">{applicant.studentName}</h3>
+                            <p>PRN: {applicant.prn}</p>
+                            <p>Application ID: {applicant.applicationId}</p>
+                            <p>Date Applied: {new Date(applicant.dateApplied).toLocaleString()}</p>
+                        </div>
+                    ))
+                    : <div className="p-4 w-[80vw] mx-auto border rounded shadow-md">
+                        <h3 className="text-lg font-semibold">No Applicants Found.</h3>
+                    </div>}
+                {
+                    applicants.length > 0 ?
+                        <button
+                            onClick={() => handleExport(jobId)}
+                            className="text-white w-[20vw] mx-auto bg-blue-500 px-4 py-2 rounded"
+                        >
+                            Export to Excel
+                        </button> : ''
+                }
             </div>
         </div>
     );

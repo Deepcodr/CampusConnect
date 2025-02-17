@@ -81,13 +81,6 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
 });
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
-});
-
 jobSchema.index({ expirationDate: 1 }, { expireAfterSeconds: 0 });
 
 const applicationSchema = new mongoose.Schema({
@@ -412,7 +405,7 @@ app.post("/api/register", async (req, res) => {
     }
 
     // Hash the password before saving
-    const hashedPassword = await bcrypt.hash(password, 10);
+    var hashedPassword = await bcrypt.hash(password, await bcrypt.genSalt(10));
 
     // Create and save the new user
     const newUser = new User({
@@ -441,7 +434,6 @@ app.get("/api/myapplications", async (req, res) => {
     }
 
     const userId = req.session.user.id;
-    console.log(userId);
     // Fetch applications along with job details
     const applications = await Application.find({ userId }).populate("jobId", "job_name company");
 
@@ -529,7 +521,6 @@ app.get("/api/admin/job/:jobId/applicants/export", async (req, res) => {
 
     // Add data rows explicitly
     applications.forEach((application) => {
-      console.log(application);
       worksheet.addRow({
         email: application.userId?.email || "N/A",
         name: application.userId?.name || "N/A",
@@ -556,7 +547,6 @@ app.get("/api/admin/job/:jobId/applicants/export", async (req, res) => {
     res.setHeader("Content-Disposition", `attachment; filename=applicants_${job.job_name}.xlsx`);
     res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-    // console.log(workbook);
     // Write the workbook to the response
     await workbook.xlsx.write(res);
     res.end();
@@ -565,60 +555,6 @@ app.get("/api/admin/job/:jobId/applicants/export", async (req, res) => {
     res.status(500).json({ message: "Server error while generating Excel file." });
   }
 });
-
-// app.get("/api/admin/job/:jobId/applicants/export", async (req, res) => {
-//   const { jobId } = req.params;
-
-//   try {
-//     // Fetch job details
-//     const job = await Job.findById(jobId);
-
-//     if (!job) {
-//       return res.status(404).json({ message: "Job not found." });
-//     }
-
-//     // Fetch applicants for this job
-//     const applications = await Application.find({ jobId }).populate("userId", "name prn");
-
-//     // Prepare data for the Excel file
-//     const excelData = applications.map((application) => ({
-//       jobId,
-//       jobName: job.job_name,
-//       studentName: application.name,
-//       prn: application.prn,
-//       applicationId: application._id,
-//       dateApplied: application.createdAt,
-//     }));
-
-//     // Create Excel file
-//     const workbook = new excelJS.Workbook();
-//     const worksheet = workbook.addWorksheet("Applicants");
-
-//     worksheet.columns = [
-//       { header: "Job ID", key: "jobId" },
-//       { header: "Job Name", key: "jobName" },
-//       { header: "Student Name", key: "studentName" },
-//       { header: "PRN", key: "prn" },
-//       { header: "Application ID", key: "applicationId" },
-//       { header: "Date Applied", key: "dateApplied" },
-//     ];
-
-//     worksheet.addRows(excelData);
-
-//     // Set the response type and file download headers
-//     res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-//     res.setHeader("Content-Disposition", "attachment; filename=applicants.xlsx");
-
-//     // Stream the Excel file
-//     await workbook.xlsx.write(res);
-//     res.end();
-
-//   } catch (error) {
-//     console.error("Error exporting applicants:", error);
-//     res.status(500).json({ message: "Server error. Please try again later." });
-//   }
-// });
-
 
 app.listen(PORT, () => {
   console.log(`Backend running at http://localhost:${PORT}`);
