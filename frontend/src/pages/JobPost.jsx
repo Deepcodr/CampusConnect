@@ -8,17 +8,34 @@ const JobPost = () => {
         job_name: "",
         job_id: "",
         company: "",
+        about_company: "",
         job_description: "",
         location: "",
         experience: "",
+        eligibleBranches: [],
+        tenthPercentage: "",
+        twelthPercentage: "",
+        engineeringPercentage: "",
+        package: "",
         expirationDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
     });
+
+    const branches = ["CSE", "ENTC", "MECH", "CIVIL", "CHEM"];
 
     const [message, setMessage] = useState("");
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setJobData({ ...jobData, [name]: value });
+    };
+
+    const handleBranchChange = (branch) => {
+        setJobData((prev) => ({
+            ...prev,
+            eligibleBranches: prev.eligibleBranches.includes(branch)
+                ? prev.eligibleBranches.filter((b) => b !== branch) // Remove if already selected
+                : [...prev.eligibleBranches, branch], // Add if not selected
+        }));
     };
 
     const handleSubmit = async (e) => {
@@ -38,10 +55,16 @@ const JobPost = () => {
                     job_name: "",
                     job_id: "",
                     company: "",
+                    about_company: "",
                     job_description: "",
                     location: "",
                     experience: "",
-                    expirationDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+                    eligibleBranches: [],
+                    tenthPercentage: "",
+                    twelthPercentage: "",
+                    engineeringPercentage: "",
+                    package: "",
+                    expirationDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
                 });
             } else {
                 setMessage("Failed to post job. Please try again.");
@@ -117,6 +140,23 @@ const JobPost = () => {
                         />
                     </div>
 
+                    {/* About Company */}
+                    <div className="mb-4">
+                        <label htmlFor="about_company" className="block font-medium mb-1">
+                            About Company
+                        </label>
+                        <textarea
+                            type="text"
+                            id="about_company"
+                            name="about_company"
+                            value={jobData.about_company}
+                            onChange={handleChange}
+                            className="w-full bg-slate-50 text-stone-950 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            rows="4"
+                            required
+                        />
+                    </div>
+
                     {/* Job Description */}
                     <div className="mb-4">
                         <label htmlFor="job_description" className="block font-medium mb-1">
@@ -163,6 +203,84 @@ const JobPost = () => {
                             className="w-full bg-slate-50 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />
+                    </div>
+
+                    {/* Package */}
+                    <div className="mb-4">
+                        <label htmlFor="Package" className="block font-medium mb-1">
+                            Package
+                        </label>
+                        <input
+                            type="text"
+                            id="package"
+                            name="package"
+                            value={jobData.package}
+                            onChange={handleChange}
+                            className="w-full bg-slate-50 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                        />
+                    </div>
+
+                    {/* Academic Marks Inputs */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label className="block font-medium">10th %</label>
+                            <input
+                                type="number"
+                                step="0.01"
+                                placeholder="e.g. 85.5"
+                                value={jobData.tenthPercentage}
+                                onChange={(e) =>
+                                    setJobData({ ...jobData, tenthPercentage: e.target.value })
+                                }
+                                className="w-full p-2 border rounded bg-white text-stone-950"
+                            />
+                        </div>
+                        <div>
+                            <label className="block font-medium">12th/Diploma %</label>
+                            <input
+                                type="number"
+                                step="0.01"
+                                placeholder="e.g. 90.2"
+                                value={jobData.twelthPercentage}
+                                onChange={(e) =>
+                                    setJobData({ ...jobData, twelthPercentage: e.target.value })
+                                }
+                                className="w-full p-2 border rounded bg-white text-stone-950"
+                            />
+                        </div>
+                        <div>
+                            <label className="block font-medium">Engineering %</label>
+                            <input
+                                type="number"
+                                step="0.01"
+                                placeholder="e.g. 78.6"
+                                value={jobData.engineeringPercentage}
+                                onChange={(e) =>
+                                    setJobData({ ...jobData, engineeringPercentage: e.target.value })
+                                }
+                                className="w-full p-2 border rounded bg-white text-stone-950"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Branch Selection Checkboxes */}
+                    <div className="mb-4">
+                        <label className="block font-medium">Eligible Branches</label>
+                        <div className="flex flex-wrap gap-2">
+                            {branches.map((branch) => (
+                                <label key={branch} className="flex items-center space-x-2">
+                                    <input
+                                        type="checkbox"
+                                        value={branch}
+                                        checked={jobData.eligibleBranches.includes(branch)}
+                                        onChange={() => handleBranchChange(branch)}
+                                        className="w-4 h-4 appearance-none border-2 border-gray-400 checked:bg-blue-500 checked:border-transparent focus:outline-none"
+                                    />
+                                    <span>{branch}</span>
+                                </label>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Expiration Date */}

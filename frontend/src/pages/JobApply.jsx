@@ -6,8 +6,6 @@ const JobApply = () => {
     const { jobId } = useParams(); // Assuming jobId is passed in the route params
     const [user, setUser] = useState(null);
     const [job, setJob] = useState(null);
-    const [resume, setResume] = useState(null);
-    const [additionalFiles, setAdditionalFiles] = useState(null);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
@@ -23,11 +21,12 @@ const JobApply = () => {
                 setUser(response.data.user); // Set user data
 
                 // Fetch job data
-                const jobResponse = await axios.get(`http://localhost:5000/api/jobs/${jobId}`,{
+                const jobResponse = await axios.get(`http://localhost:5000/api/jobs/${jobId}`, {
                     withCredentials: true,
                 });
                 console.log(jobResponse);
                 setJob(jobResponse.data);
+                console.log(job);
             } catch (err) {
                 console.error(err);
                 setError("Failed to load data. Please try again.");
@@ -37,53 +36,29 @@ const JobApply = () => {
         fetchData();
     }, [jobId]);
 
-    const handleFileChange = (e) => {
-        const { name, files } = e.target;
-
-        if (name === "resume") {
-            setResume(files[0]);
-        } else if (name === "additionalFiles") {
-            setAdditionalFiles(files[0]);
-        }
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
         setSuccess("");
 
-        if (!resume) {
-            setError("Resume is required!");
-            return;
-        }
-
         const formData = new FormData();
-        formData.append("jobId", jobId);
-        formData.append("jobName", job?.job_name);
-        formData.append("userId", user?._id);
-        formData.append("email", user?.email);
-        formData.append("name", user?.name);
-        formData.append("prn", user?.prn);
-        formData.append("resume", resume);
-        if (additionalFiles) {
-            formData.append("additionalFiles", additionalFiles);
-        }
+
+        formData.append("jobId",jobId);
 
         try {
-            const response = await axios.post("http://localhost:5000/api/apply", formData, {
+            const response = await axios.post("http://localhost:5000/api/jobs/apply", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
+                withCredentials: true
             });
             console.log(response);
             setSuccess("Application submitted successfully!");
         } catch (err) {
-            if(err.status===409)
-            {
+            if (err.status === 409) {
                 setError("You have already Applied to this job.");
-            }else
-            {
-                setError("Failed to submit the application. Please try again.");
+            } else {
+                setError(err.response.data.error);
             }
         }
     };
@@ -96,68 +71,62 @@ const JobApply = () => {
     return (
         <div className="max-w-2xl mx-auto p-4 bg-white shadow-md rounded-lg mt-6 text-stone-950">
             <h1 className="text-2xl font-bold mb-4">Apply for {job.job_name} at {job.company}</h1>
+
             {error && <p className="text-red-500">{error}</p>}
             {success && <p className="text-green-500">{success}</p>}
+            <div className="mb-2">
+                <h3 className="block font-semibold text-gray-700 mb-1">Role :</h3>
+                <div>{job.job_name}</div>
+            </div>
+            <div className="mb-2">
+                <h3 className="block font-semibold text-gray-700 mb-1">Job ID :</h3>
+                <div>{job.job_id}</div>
+            </div>
+            <div className="mb-2">
+                <h3 className="block font-semibold text-gray-700 mb-1">Company :</h3>
+                <div>{job.company}</div>
+            </div>
+            <div className="mb-2">
+                <h3 className="block font-semibold text-gray-700 mb-1">About Company :</h3>
+                <div>{job.about_company}</div>
+            </div>
+            <div className="mb-2">
+                <h3 className="block font-semibold text-gray-700 mb-1">Job Description :</h3>
+                <div>{job.job_description}</div>
+            </div>
+            <div className="mb-2">
+                <h3 className="block font-semibold text-gray-700 mb-1">Location :</h3>
+                <div>{job.location}</div>
+            </div>
+            <div className="mb-2">
+                <h3 className="block font-semibold text-gray-700 mb-1">Experience :</h3>
+                <div>{job.experience}</div>
+            </div>
+            <div className="mb-2">
+                <h3 className="block font-semibold text-gray-700 mb-1">Package :</h3>
+                <div>{job.package}</div>
+            </div>
+            <div className="mb-2">
+                <h3 className="block font-semibold text-gray-700 mb-1">Eligible Branches :</h3>
+                <div>{
+                job.eligibleBranches.map(branch => 
+                  <h3 key={branch}>{branch}</h3>
+                )
+                }</div>
+            </div>
+            <div className="mb-2">
+                <h3 className="block font-semibold text-gray-700 mb-1">Required 10th Percentage :</h3>
+                <div>{job.tenthPercentage}</div>
+            </div>
+            <div className="mb-2">
+                <h3 className="block font-semibold text-gray-700 mb-1">Required 12th Percentage :</h3>
+                <div>{job.twelthPercentage}</div>
+            </div>
+            <div className="mb-2">
+                <h3 className="block font-semibold text-gray-700 mb-1">Required Engineering Aggregate :</h3>
+                <div>{job.engineeringPercentage}</div>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Pre-filled fields */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">Email</label>
-                    <input
-                        type="text"
-                        value={user.email}
-                        disabled
-                        className="mt-1 text-gray-700 block w-full p-2 border rounded-md bg-gray-100 cursor-not-allowed"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">Name</label>
-                    <input
-                        type="text"
-                        value={user.name}
-                        disabled
-                        className="mt-1 block w-full p-2 border rounded-md bg-gray-100 cursor-not-allowed"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">PRN</label>
-                    <input
-                        type="text"
-                        value={user.prn}
-                        disabled
-                        className="mt-1 block w-full p-2 border rounded-md bg-gray-100 cursor-not-allowed"
-                    />
-                </div>
-
-                {/* Resume Upload */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                        Upload Resume (PDF only)
-                    </label>
-                    <input
-                        type="file"
-                        name="resume"
-                        accept="application/pdf"
-                        onChange={handleFileChange}
-                        required
-                        className="mt-1 block w-full p-2 border rounded-md"
-                    />
-                </div>
-
-                {/* Additional Files Upload (Optional) */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                        Upload Additional Files (Optional, PDF only)
-                    </label>
-                    <input
-                        type="file"
-                        name="additionalFiles"
-                        accept="application/pdf"
-                        onChange={handleFileChange}
-                        className="mt-1 block w-full p-2 border rounded-md"
-                    />
-                </div>
-
-                {/* Submit Button */}
                 <div>
                     <button
                         type="submit"

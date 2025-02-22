@@ -15,7 +15,7 @@ const moment = require('moment');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Store files in the "uploads" directory
+    cb(null, __dirname + "/uploads/"); // Store files in the "uploads" directory
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -60,13 +60,19 @@ const jobSchema = new mongoose.Schema({
   job_name: String,
   job_id: String,
   company: String,
+  about_company: String,
   job_description: String,
   location: String,
   experience: String,
+  package: String,
+  eligibleBranches: { type: [String], required: true },
+  tenthPercentage: { type: Number, required: true },
+  twelthPercentage: { type: Number, required: true },
+  engineeringPercentage: { type: Number, required: true },
   createdAt: { type: Date, default: Date.now },
   expirationDate: {
     type: Date,
-    default: () => Date.now() + 14 * 24 * 60 * 60 * 1000,
+    default: () => Date.now() + 2 * 24 * 60 * 60 * 1000,
   },
 });
 
@@ -74,11 +80,18 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true },
   year: { type: String, required: true, default: 'First Year' },
+  branch: { type: String, required: true },
   division: { type: String, required: true },
   prn: { type: String, required: true },
+  tenthPercentage: { type: Number, required: false },
+  twelthPercentage: { type: Number, required: false },
+  engineeringPercentage: { type: Number, required: false },
+  resume: { type: String, required: false },
   role: { type: String, required: true, default: 'STUDENT' },
   username: { type: String, required: true },
   password: { type: String, required: true },
+  profileCompletion: { type: Boolean, default: false },
+  placedStatus: { type: Boolean, default: false}
 });
 
 jobSchema.index({ expirationDate: 1 }, { expireAfterSeconds: 0 });
@@ -220,9 +233,15 @@ app.post('/api/jobs', async (req, res) => {
     job_name,
     job_id,
     company,
+    about_company,
     job_description,
     location,
     experience,
+    package,
+    eligibleBranches,
+    tenthPercentage,
+    twelthPercentage,
+    engineeringPercentage,
     expirationDate,
   } = req.body;
 
@@ -230,9 +249,15 @@ app.post('/api/jobs', async (req, res) => {
     !job_name ||
     !job_id ||
     !company ||
+    !about_company ||
     !job_description ||
     !location ||
-    !experience
+    !experience ||
+    !package ||
+    eligibleBranches.length == 0 ||
+    !tenthPercentage ||
+    !twelthPercentage ||
+    !engineeringPercentage
   ) {
     return res.status(400).json({ error: 'All fields except expirationDate are required' });
   }
@@ -242,9 +267,15 @@ app.post('/api/jobs', async (req, res) => {
       job_name,
       job_id,
       company,
+      about_company,
       job_description,
       location,
       experience,
+      package,
+      eligibleBranches,
+      tenthPercentage,
+      twelthPercentage,
+      engineeringPercentage,
       expirationDate: expirationDate
         ? new Date(expirationDate)
         : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // Default to 2 weeks if not provided
@@ -258,34 +289,65 @@ app.post('/api/jobs', async (req, res) => {
   }
 });
 
-app.post("/api/apply", upload, async (req, res) => {
+app.post("/api/jobs/apply", upload, async (req, res) => {
   try {
+    const { jobId } = req.body;
 
-    const { jobId, userId, email, name, prn } = req.body;
+    var userId = req.session.user.id;
+
+    if (!jobId) {
+      return res.status(400).json({ error: "Job Not Found." });
+    }
+
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized!" });
+    }
+
+    const user = await User.findById(userId);
+
+    if(!user)
+    {
+      return res.status(400).json({error : "User Not Found"});
+    }
+
+    if(user.placedStatus)
+    {
+      return res.status(400).json({error : "You are already placed."});
+    }
 
     // Ensure required fields are provided
-    if (!jobId || !email || !name || !prn || !userId) {
-      return res.status(400).json({ error: "Missing required fields" });
+    if (!user.profileCompletion) {
+      return res.status(400).json({ error: "Please complete profile before applying." });
     }
 
     const existingApplication = await Application.findOne({ jobId, userId });
 
     if (existingApplication) {
-      if (req.files["resume"]) await fs.unlink(req.files["resume"][0].path);
-      if (req.files["additionalFiles"]) await fs.unlink(req.files["additionalFiles"][0].path);
-
       return res.status(409).json({ message: "You have already applied to this job." });
     }
+
+    const job = await Job.findById(jobId);
+
+    if (!job) {
+      return res.status(400).json({ error: "Job Not Found." });
+    }
+
+    if(user.tenthPercentage<job.tenthPercentage || user.twelthPercentage<job.twelthPercentage || user.engineeringPercentage<job.engineeringPercentage
+      || !job.eligibleBranches.includes(user.branch)
+    )
+    {
+      return res.status(400).json({error : "You are not eligible to apply for this job"});
+    }
+
     // Prepare the application data
     const applicationData = {
       jobId,
-      jobName: req.body.jobName, // Assuming job name is provided in the body
-      userId,  
-      email,
-      name,
-      prn,
-      resume: req.files["resume"] ? req.files["resume"][0].path : null,
-      additionalFiles: req.files["additionalFiles"] ? req.files["additionalFiles"][0].path : null,
+      jobName: job.job_name, // Assuming job name is provided in the body
+      userId,
+      email: user.email,
+      name: user.name,
+      prn: user.prn,
+      resume: user.resume,
     };
 
     // Save application to the database
@@ -350,6 +412,105 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+//fetch all students
+app.get("/api/admin/students", async (req, res) => {
+  try {
+    if(!req.session.user)
+    {
+      return res.status(401).json({error : "Unauthorized"});
+    }
+
+    if (req.session.user.role !== "ADMIN") {
+      return res.status(403).json({ error: "Access Denied" });
+    }
+
+    const students = await User.find({ role: "STUDENT" }).select("-password");
+    res.json(students);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server Error" });
+  }
+});
+
+// Update placed status
+app.put("/api/admin/updateplaced/:id", async (req, res) => {
+  try {
+    if(!req.session.user)
+    {
+      return res.status(401).json({error : "Unauthorized"})
+    }
+
+    if (req.session.user.role !== "ADMIN") {
+      return res.status(403).json({ error: "Access Denied" });
+    }
+
+    const { placedStatus } = req.body;
+
+    const student = await User.findByIdAndUpdate(
+      req.params.id,
+      { placedStatus },
+      { new: true }
+    );
+
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    res.json({ message: "Placed status updated successfully", student });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server Error" });
+  }
+});
+
+//Endpoint for updating user profile
+app.put("/api/profile", upload, async (req, res) => {
+  try {
+
+    const userId = req.session.user.id;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const { name, branch, tenthPercentage, twelthPercentage, engineeringPercentage } = req.body;
+    let updateFields = { name, branch, tenthPercentage, twelthPercentage, engineeringPercentage };
+
+    if (req.files.resume && req.files.resume[0]) {
+      updateFields.resume = `/uploads/${req.files.resume[0].filename}`;
+    }
+
+    // Merge updated fields
+    const updatedUser = { ...user.toObject(), ...updateFields };
+
+    // Check if profile is fully completed
+    var isProfileComplete;
+
+    if (updatedUser.name &&
+      updatedUser.username &&
+      updatedUser.branch &&
+      updatedUser.tenthPercentage &&
+      updatedUser.twelthPercentage &&
+      updatedUser.engineeringPercentage &&
+      updatedUser.resume) {
+      isProfileComplete = true;
+    } else {
+      isProfileComplete = false;
+    }
+
+    updateFields.profileCompletion = isProfileComplete;
+
+    await User.findByIdAndUpdate(userId, updateFields);
+    res.status(200).json({ message: "Profile updated successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Profile update failed" });
+  }
+});
+
 // Endpoint to check if user is logged in (using session)
 app.get("/api/me", async (req, res) => {
   try {
@@ -360,7 +521,7 @@ app.get("/api/me", async (req, res) => {
 
     var username = req.session.user.username;
     // Return user session details
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ username }).select("-password");
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -390,7 +551,7 @@ app.post("/api/logout", (req, res) => {
 });
 
 app.post("/api/register", async (req, res) => {
-  const { name, email, year, division, prn, username, password } = req.body;
+  const { name, email, year, division, prn, username, password, branch } = req.body;
 
   try {
     // Check if the logged-in user is an admin
@@ -414,6 +575,7 @@ app.post("/api/register", async (req, res) => {
       year,
       division,
       prn,
+      branch,
       username,
       password: hashedPassword,
       role: "STUDENT", // Default to STUDENT role
@@ -553,6 +715,31 @@ app.get("/api/admin/job/:jobId/applicants/export", async (req, res) => {
   } catch (error) {
     console.error("Error generating Excel file:", error);
     res.status(500).json({ message: "Server error while generating Excel file." });
+  }
+});
+
+app.get("/resume", async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+
+    // Fetch user details from DB
+    const user = await User.findById(userId);
+    if (!user || !user.resume) {
+      return res.status(404).json({ error: "Resume not found" });
+    }
+
+    // Construct the full file path
+    const resumePath = path.join(__dirname, user.resume);
+
+    res.download(resumePath, "Resume.pdf", (err) => {
+      if (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error downloading resume" });
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

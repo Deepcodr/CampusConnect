@@ -14,11 +14,12 @@ import JobApply from "./pages/JobApply"
 import AdminJobs from "./pages/AdminJobs"
 import JobApplications from "./pages/JobApplications"
 import MyApplications from "./pages/MyApplications"
+import Students from "./pages/Students"
 
 function App() {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen h-[100vh] w-[100vw] bg-gray-100 text-stone-950">
+      <div className="flex flex-col min-h-max h-[100vh] w-[100vw] bg-gray-100 text-stone-950">
         <Header />
         <main className="flex-grow">
           <Routes>
@@ -33,6 +34,7 @@ function App() {
             <Route path="/jobpost" element={<JobPost />} />
             <Route path="/apply/:jobId" element={<JobApply />} />
             <Route path="/registration" element={<Registration />} />
+            <Route path="/students" element={<Students />} />
             <Route path="/profile" element={<Profile />} />
           </Routes>
         </main>

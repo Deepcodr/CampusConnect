@@ -113,6 +113,10 @@ function Header() {
                           <>
                             <Link to="/jobs" className="block px-4 py-2 hover:bg-gray-200">Jobs</Link>
                             <Link to="/myapplications" className="block px-4 py-2 hover:bg-gray-200">My Applications</Link>
+                            {user.placedStatus ? 
+                            <Link to="/feedback" className="block px-4 py-2 hover:bg-gray-200">Feedback</Link> 
+                            : "" 
+                          }
                           </>
                         )}
 
@@ -122,6 +126,7 @@ function Header() {
                             <Link to="/registration" className="block px-4 py-2 hover:bg-gray-200">Register Student</Link>
                             <Link to="/adminjobs" className="block px-4 py-2 hover:bg-gray-200">Jobs</Link>
                             <Link to="/jobPost" className="block px-4 py-2 hover:bg-gray-200">Post a Job</Link>
+                            <Link to="/students" className="block px-4 py-2 hover:bg-gray-200">Students</Link>
                           </>
                         )}
                         {/* <Link

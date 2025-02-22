@@ -6,11 +6,12 @@ const Registration = () => {
   const [userData, setUserData] = useState({
     name: "",
     email: "",
-    year: "First Year",
-    division: "",
-    prn: "",
     username: "",
     password: "",
+    prn: "",
+    division: "",
+    year: "First Year",
+    branch: ""
   });
   const [isAdmin, setIsAdmin] = useState(false);
   const [error, setError] = useState(null);
@@ -39,6 +40,7 @@ const Registration = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(userData);
     try {
       await axios.post("http://localhost:5000/api/register", userData, {
         withCredentials: true,
@@ -47,11 +49,12 @@ const Registration = () => {
       setUserData({
         name: "",
         email: "",
-        year: "First Year",
-        division: "",
-        prn: "",
         username: "",
         password: "",
+        prn: "",
+        division: "",
+        year: "First Year",
+        branch: "",
       });
     } catch (err) {
       setError(err.response?.data?.error || "Failed to create user.");
@@ -63,7 +66,7 @@ const Registration = () => {
   }
 
   return (
-    <div className="min-h-fit max-w-3xl mx-auto m-4 p-4 bg-white shadow-md rounded-lg text-stone-950">
+    <div className="min-h-max max-w-3xl mx-auto m-4 p-4 bg-white shadow-md rounded-lg text-stone-950">
       <h1 className="text-2xl font-bold mb-4">Register a New Student</h1>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -88,16 +91,44 @@ const Registration = () => {
           />
         </div>
         <div>
+          <label className="block text-sm font-medium">PRN</label>
+          <input
+            type="text"
+            className="w-full bg-slate-50 p-2 border rounded"
+            value={userData.prn}
+            onChange={(e) => setUserData({ ...userData, prn: e.target.value })}
+            required
+          />
+        </div>
+        <div>
           <label className="block text-sm font-medium">Year</label>
           <select
             className="w-full bg-slate-50 p-2 border rounded"
-            value={userData.year}
+            // value={userData.year}
+            defaultValue="Select Year"
             onChange={(e) => setUserData({ ...userData, year: e.target.value })}
           >
+            <option disabled>Select Year</option>
             <option>First Year</option>
             <option>Second Year</option>
             <option>Third Year</option>
             <option>Final Year</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Branch</label>
+          <select
+            className="w-full bg-slate-50 p-2 border rounded"
+            // value={userData.branch}
+            defaultValue="Select Branch"
+            onChange={(e) => setUserData({ ...userData, branch: e.target.value })}
+          >
+            <option disabled>Select Branch</option>
+            <option>CSE</option>
+            <option>ENTC</option>
+            <option>CHEM</option>
+            <option>MECH</option>
+            <option>CIVIL</option>
           </select>
         </div>
         <div>
@@ -110,16 +141,40 @@ const Registration = () => {
             required
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium">PRN</label>
-          <input
-            type="text"
-            className="w-full bg-slate-50 p-2 border rounded"
-            value={userData.prn}
-            onChange={(e) => setUserData({ ...userData, prn: e.target.value })}
+        {/* <div>
+          <label className="block text-sm font-medium">10th Percentage</label>
+          <input type="number"
+            name="tenthPercentage"
+            placeholder="10th Percentage"
             required
-          />
+            onChange={(e) => setUserData({ ...userData, tenthPercentage: e.target.value })}
+            className="w-full p-2 bg-slate-50 border rounded" />
         </div>
+        <div>
+          <label className="block text-sm font-medium">12th/Diploma Percentage</label>
+          <input type="number"
+            name="twelthPercentage"
+            placeholder="12th Percentage" 
+            required
+            onChange={(e) => setUserData({ ...userData, twelthPercentage: e.target.value })}
+            className="w-full p-2 bg-slate-50 border rounded" />
+        </div> */}
+        {/* <div>
+          <label className="block text-sm font-medium">Engineering Percentage</label>
+          <input type="number"
+            name="engineeringPercentage"
+            placeholder="Engineering Percentage"
+            required
+            onChange={(e) => setUserData({ ...userData, engineeringPercentage: e.target.value })}
+            className="w-full p-2 bg-slate-50 border rounded" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Resume (PDF ONLY)</label>
+          <input type="file" name="resume" 
+          accept="application/pdf" 
+          onChange={handleFileChange}  
+          className="w-full p-2 border rounded" />
+        </div> */}
         <div>
           <label className="block text-sm font-medium">Username</label>
           <input
