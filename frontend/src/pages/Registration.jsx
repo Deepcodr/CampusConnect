@@ -3,6 +3,12 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const Registration = () => {
+  const emailReg = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+  const textReg = /^[A-Za-z]+(?: [A-Za-z]+)*$/;
+  const prnRegex = /^\d{2}UG(CS|ET|CH|ME|CE)\d{5}$/;
+  const divRegex = /^[A-Z]$/;
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,12}$/;
+
   const [userData, setUserData] = useState({
     name: "",
     email: "",
@@ -13,6 +19,10 @@ const Registration = () => {
     year: "First Year",
     branch: ""
   });
+
+  const years=["First Year","Second Year","Third Year","Final Year"];
+  const branches = ["CSE","ENTC","CHEM","MECH","CIVIL"];
+
   const [isAdmin, setIsAdmin] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -40,7 +50,12 @@ const Registration = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(userData);
+
+    if(!validateRegistration())
+    {
+      return;
+    }
+    
     try {
       await axios.post("http://localhost:5000/api/register", userData, {
         withCredentials: true,
@@ -61,6 +76,62 @@ const Registration = () => {
     }
   };
 
+  function validateRegistration() {
+    if(!textReg.exec(userData.name))
+    {
+      alert("Enter a valid name");
+      return false;
+    }
+
+    if(!divRegex.exec(userData.division))
+    {
+      alert("Enter a valid division");
+      return false;
+    }
+
+    if (!emailReg.exec(userData.email)) {
+      alert("Enter valid  email");
+      return false;
+    }
+
+    if(userData.prn!=userData.username)
+    {
+      alert("Username should be same as PRN");
+      return false;
+    }
+
+    if(!years.includes(userData.year))
+    {
+      alert("Select a valid year");
+      return false;
+    }
+
+    if(!branches.includes(userData.branch))
+    {
+      alert("Select a valid branch");
+      return false;
+    }
+
+    if(!prnRegex.exec(userData.prn))
+    {
+      alert("Enter valid PRN");
+      return false;
+    }
+
+    if (!prnRegex.exec(userData.username)) {
+      alert("Enter Valid Username");
+      return false;
+    }
+
+    if(!passwordRegex.exec(userData.password))
+    {
+      alert("Enter a valid password\npassword must contain following pattern\nshould have 8 to 12 characters\nmust be alphanumeric \nmust contain one uppercase , one lowercase character\nmust contain one digit \nmust contain one special symbol")
+      return false;
+    }
+
+    return true;
+  }
+
   if (!isAdmin) {
     return <p className="text-center text-red-500">Access Denied. Admins Only.</p>;
   }
@@ -74,6 +145,7 @@ const Registration = () => {
           <label className="block text-sm font-medium">Name</label>
           <input
             type="text"
+            id="name"
             className="w-full bg-slate-50 p-2 border rounded"
             value={userData.name}
             onChange={(e) => setUserData({ ...userData, name: e.target.value })}
@@ -84,6 +156,7 @@ const Registration = () => {
           <label className="block text-sm font-medium">Email</label>
           <input
             type="email"
+            id="email"
             className="w-full bg-slate-50 p-2 border rounded"
             value={userData.email}
             onChange={(e) => setUserData({ ...userData, email: e.target.value })}
@@ -94,6 +167,7 @@ const Registration = () => {
           <label className="block text-sm font-medium">PRN</label>
           <input
             type="text"
+            id="prn"
             className="w-full bg-slate-50 p-2 border rounded"
             value={userData.prn}
             onChange={(e) => setUserData({ ...userData, prn: e.target.value })}
@@ -136,50 +210,18 @@ const Registration = () => {
           <input
             type="text"
             className="w-full bg-slate-50 p-2 border rounded"
+            id="division"
             value={userData.division}
             onChange={(e) => setUserData({ ...userData, division: e.target.value })}
             required
           />
         </div>
-        {/* <div>
-          <label className="block text-sm font-medium">10th Percentage</label>
-          <input type="number"
-            name="tenthPercentage"
-            placeholder="10th Percentage"
-            required
-            onChange={(e) => setUserData({ ...userData, tenthPercentage: e.target.value })}
-            className="w-full p-2 bg-slate-50 border rounded" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">12th/Diploma Percentage</label>
-          <input type="number"
-            name="twelthPercentage"
-            placeholder="12th Percentage" 
-            required
-            onChange={(e) => setUserData({ ...userData, twelthPercentage: e.target.value })}
-            className="w-full p-2 bg-slate-50 border rounded" />
-        </div> */}
-        {/* <div>
-          <label className="block text-sm font-medium">Engineering Percentage</label>
-          <input type="number"
-            name="engineeringPercentage"
-            placeholder="Engineering Percentage"
-            required
-            onChange={(e) => setUserData({ ...userData, engineeringPercentage: e.target.value })}
-            className="w-full p-2 bg-slate-50 border rounded" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">Resume (PDF ONLY)</label>
-          <input type="file" name="resume" 
-          accept="application/pdf" 
-          onChange={handleFileChange}  
-          className="w-full p-2 border rounded" />
-        </div> */}
         <div>
           <label className="block text-sm font-medium">Username</label>
           <input
             type="text"
             className="w-full bg-slate-50 p-2 border rounded"
+            id="username"
             value={userData.username}
             onChange={(e) => setUserData({ ...userData, username: e.target.value })}
             required
@@ -190,6 +232,7 @@ const Registration = () => {
           <input
             type="password"
             className="w-full bg-slate-50 p-2 border rounded"
+            id="password"
             value={userData.password}
             onChange={(e) => setUserData({ ...userData, password: e.target.value })}
             required

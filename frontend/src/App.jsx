@@ -4,7 +4,6 @@ import Header from "./components/Header"
 import Footer from "./components/Footer"
 import Home from "./pages/Home"
 import Jobs from "./pages/Jobs"
-import Companies from "./pages/Companies"
 import About from "./pages/About"
 import LoginPage from "./pages/Login"
 import JobPost from "./pages/JobPost"
@@ -15,6 +14,8 @@ import AdminJobs from "./pages/AdminJobs"
 import JobApplications from "./pages/JobApplications"
 import MyApplications from "./pages/MyApplications"
 import Students from "./pages/Students"
+import Feedback from "./pages/Feedback"
+import Feedbacks from "./pages/Feedbacks"
 
 function App() {
   return (
@@ -28,13 +29,14 @@ function App() {
             <Route path="/adminjobs" element={<AdminJobs />} />
             <Route path="/jobapplicants/:jobId" element={<JobApplications />} />
             <Route path="/myapplications" element={< MyApplications />} />
-            <Route path="/companies" element={<Companies />} />
             <Route path="/about" element={<About />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/registration" element={<Registration />} />
             <Route path="/jobpost" element={<JobPost />} />
             <Route path="/apply/:jobId" element={<JobApply />} />
-            <Route path="/registration" element={<Registration />} />
             <Route path="/students" element={<Students />} />
+            <Route path="/feedback" element={<Feedback />} />
+            <Route path="/feedbacks" element={<Feedbacks />} />
             <Route path="/profile" element={<Profile />} />
           </Routes>
         </main>

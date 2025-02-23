@@ -4,6 +4,10 @@ import "react-datepicker/dist/react-datepicker.css";
 
 
 const JobPost = () => {
+    const jobIdRegex = /^[A-Za-z0-9]+$/;
+    const textReg = /^[A-Za-z]+(?: [A-Za-z]+)*$/;
+    const numReg = /^[0-9]+$/;
+
     const [jobData, setJobData] = useState({
         job_name: "",
         job_id: "",
@@ -40,6 +44,11 @@ const JobPost = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (!validatePost()) {
+            return;
+        }
+        
         try {
             const response = await fetch("http://localhost:5000/api/jobs", {
                 method: "POST",
@@ -74,6 +83,42 @@ const JobPost = () => {
             setMessage("An error occurred. Please try again.");
         }
     };
+
+    function validatePost() {
+        if (!textReg.exec(jobData.job_name)) {
+            alert("Enter a valid role ");
+            return false;
+        }
+
+        if (!jobIdRegex.exec(jobData.job_id)) {
+            alert("Enter a valid job id");
+            return false;
+        }
+
+        if (!textReg.exec(jobData.company)) {
+            alert("Enter valid company name");
+            return false;
+        }
+
+        if(!textReg.exec(jobData.location))
+        {
+            alert("Enter a valid location");
+            return false;
+        }
+
+        if (!numReg.exec(jobData.experience)) {
+            alert("Enter valid experience");
+            return false;
+        }
+
+        if(jobData.tenthPercentage<0 || jobData.twelthPercentage<0 || jobData.engineeringPercentage<0)
+        {
+            alert("Enter valid marks");
+            return false;
+        }
+
+        return true;
+    }
 
     return (
         <div className="min-h-screen bg-gray-100 text-stone-950 flex items-center justify-center p-4">

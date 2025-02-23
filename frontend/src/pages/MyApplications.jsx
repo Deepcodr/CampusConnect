@@ -10,7 +10,6 @@ const MyApplications = () => {
         const fetchApplications = async () => {
             try {
                 const response = await axios.get("http://localhost:5000/api/myapplications", { withCredentials: true });
-                console.log(response.data);
                 setApplications(response.data);
             } catch (err) {
                 console.error("Error fetching applications:", err);

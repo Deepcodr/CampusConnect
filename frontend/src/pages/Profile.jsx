@@ -10,6 +10,10 @@ const Profile = () => {
   const [formData, setFormData] = useState({});
   const [isAdmin, setIsAdmin] = useState(false);
 
+  const branches = ["CSE", "ENTC", "CHEM", "MECH", "CIVIL"];
+
+  const emailReg = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+  const textReg = /^[A-Za-z]+(?: [A-Za-z]+)*$/;
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -20,7 +24,6 @@ const Profile = () => {
         const [firstname, lastname] = response.data.user.name.split(" ");
         const generatedImageUrl = `https://ui-avatars.com/api/?name=${firstname}+${lastname}`;
         setProfileImage(generatedImageUrl);
-        console.log(response);
         // Set user data
         if (response.data.user.role == "ADMIN") {
           setIsAdmin(true);
@@ -31,7 +34,6 @@ const Profile = () => {
 
 
       } catch (err) {
-        console.log(err);
         setError("Failed to fetch user data. Please log in.");
       } finally {
         setLoading(false); // Stop loading
@@ -56,7 +58,11 @@ const Profile = () => {
         formDataToSend.append(key, formData[key]);
       });
 
-      await axios.put("http://localhost:5000/api/profile", formDataToSend, {
+      if (! await validateProfile()) {
+        return;
+      }
+
+      const response = await axios.put("http://localhost:5000/api/profile", formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
       });
@@ -69,6 +75,30 @@ const Profile = () => {
       alert("Failed to update profile.");
     }
   };
+
+  function validateProfile() {
+    if (!formData.name ||  !textReg.exec(formData.name)) {
+      alert("Enter a valid name ");
+      return false;
+    }
+
+    if (!formData.email || !emailReg.exec(formData.email)) {
+      alert("Enter a valid email");
+      return false;
+    }
+
+    if (!formData.branch || !branches.includes(formData.branch)) {
+      alert("Select valid branch name");
+      return false;
+    }
+
+    if (!formData.tenthPercentage || !formData.twelthPercentage || !formData.engineeringPercentage || formData.tenthPercentage < 0 || formData.twelthPercentage < 0 || formData.engineeringPercentage < 0) {
+      alert("Enter valid marks");
+      return false;
+    }
+
+    return true;
+  }
 
   if (loading) {
     return <div className="text-center text-lg mt-10">Loading...</div>;
@@ -181,15 +211,6 @@ const Profile = () => {
                       required
                     />
                   </div>
-                  {/* <input type="text" name="name" value={formData.name} onChange={handleChange} disabled={!isEditing} className="w-full p-2 border rounded text-stone-950 bg-slate-50" /> */}
-                  {/* <input type="email" name="email" value={formData.email} disabled className="w-full p-2 border rounded bg-gray-100" /> */}
-                  {/* <input type="text" name="username" value={formData.username} onChange={handleChange} disabled={!isEditing} className="w-full p-2 border rounded" /> */}
-                  {/* <input type="text" name="prn" value={formData.prn} disabled className="w-full p-2 border rounded bg-gray-100" /> */}
-
-                  {/* <input type="number" name="tenthPercentage" placeholder="10th Percentage" value={formData.tenthPercentage} onChange={handleChange} disabled={!isEditing} className="w-full p-2 border rounded" /> */}
-                  {/* <input type="number" name="twelfthPercentage" placeholder="12th Percentage" value={formData.twelfthPercentage} onChange={handleChange} disabled={!isEditing} className="w-full p-2 border rounded" /> */}
-                  {/* <input type="number" name="engineeringPercentage" placeholder="Engineering Percentage" value={formData.engineeringPercentage} onChange={handleChange} disabled={!isEditing} className="w-full p-2 border rounded" /> */}
-
                   <div>
                     <label className="block text-sm font-medium mb-2">Resume</label>
                     {/* <input

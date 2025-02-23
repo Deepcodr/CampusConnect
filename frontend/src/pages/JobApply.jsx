@@ -24,9 +24,7 @@ const JobApply = () => {
                 const jobResponse = await axios.get(`http://localhost:5000/api/jobs/${jobId}`, {
                     withCredentials: true,
                 });
-                console.log(jobResponse);
                 setJob(jobResponse.data);
-                console.log(job);
             } catch (err) {
                 console.error(err);
                 setError("Failed to load data. Please try again.");
@@ -52,7 +50,6 @@ const JobApply = () => {
                 },
                 withCredentials: true
             });
-            console.log(response);
             setSuccess("Application submitted successfully!");
         } catch (err) {
             if (err.status === 409) {

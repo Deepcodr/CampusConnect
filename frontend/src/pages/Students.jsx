@@ -46,8 +46,6 @@ const Students = () => {
                 { withCredentials: true }
             );
 
-            // console.log(response);
-
             setStudents((prevStudents) =>
                 prevStudents.map((student) =>
                     student._id === studentId ? { ...student, placedStatus: !currentStatus } : student

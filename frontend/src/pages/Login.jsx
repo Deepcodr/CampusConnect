@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import axios from "axios";
 
 const Login = () => {
+  const prnRegex = /^\d{2}UG(CS|ET|CH|ME|CE)\d{5}$/g;
+  const emailReg= /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
+
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -22,6 +25,11 @@ const Login = () => {
     e.preventDefault();
     setError(null);
 
+    if(!validateLogin())
+    {
+      return;
+    }
+
     try {
       // Send login data to the backend
       await axios.post(
@@ -37,6 +45,18 @@ const Login = () => {
       setError(err.response?.data?.error || "An error occurred");
     }
   };
+
+  function validateLogin() {
+    var username = document.getElementById("username").value;
+
+    if (!prnRegex.exec(username) && !emailReg.exec(username)) {
+      alert("Enter Valid Username");
+      return false;
+    }
+    else {
+      return true;
+    }
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 text-stone-950  ">

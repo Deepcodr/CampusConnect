@@ -45,7 +45,6 @@ function Header() {
 
 
       } catch (error) {
-        console.log(error);
         setUser(null);
       }
     };
@@ -78,15 +77,48 @@ function Header() {
               </Link>
             </li>
             <li>
-              <Link to="/companies" className="text-gray-600 hover:text-blue-600">
-                Companies
-              </Link>
-            </li>
-            <li>
               <Link to="/about" className="text-gray-600 hover:text-blue-600">
                 About
               </Link>
             </li>
+            <li>
+              <Link to="/feedbacks" className="text-gray-600 hover:text-blue-600">
+                Feedback
+              </Link>
+            </li>
+            {/* Student Links */}
+            {user ? ((user.role === "STUDENT") && (
+              <>
+                <li><Link to="/jobs" className="text-gray-600 hover:text-blue-600">Jobs</Link></li>
+                <li><Link to="/myapplications" className="text-gray-600 hover:text-blue-600">Applications</Link></li>
+                {user.placedStatus ?
+                  <li>
+                    <Link to="/feedback" className="text-gray-600 hover:text-blue-600">Add Feedback</Link>
+                  </li>
+                  : ""
+                }
+              </>
+            )) : <></>
+            }
+
+            {/* Admin Links */}
+            {user ? (user.role === "ADMIN" && (
+              <>
+                <li>
+                  <Link to="/registration" className="text-gray-600 hover:text-blue-600">Register Student</Link>
+                </li>
+                <li>
+                  <Link to="/adminjobs" className="text-gray-600 hover:text-blue-600">Jobs</Link>
+                </li>
+                <li>
+                  <Link to="/jobPost" className="text-gray-600 hover:text-blue-600">Post Job</Link>
+                </li>
+                <li>
+                  <Link to="/students" className="text-gray-600 hover:text-blue-600">Students</Link>
+                </li>
+              </>
+            )) : <></>}
+
             <div className="relative">
               {user ? (
                 <div className="flex items-center space-x-4">
@@ -108,33 +140,6 @@ function Header() {
                         >
                           Profile
                         </Link>
-                        {/* Student Links */}
-                        {user.role === "STUDENT" && (
-                          <>
-                            <Link to="/jobs" className="block px-4 py-2 hover:bg-gray-200">Jobs</Link>
-                            <Link to="/myapplications" className="block px-4 py-2 hover:bg-gray-200">My Applications</Link>
-                            {user.placedStatus ? 
-                            <Link to="/feedback" className="block px-4 py-2 hover:bg-gray-200">Feedback</Link> 
-                            : "" 
-                          }
-                          </>
-                        )}
-
-                        {/* Admin Links */}
-                        {user.role === "ADMIN" && (
-                          <>
-                            <Link to="/registration" className="block px-4 py-2 hover:bg-gray-200">Register Student</Link>
-                            <Link to="/adminjobs" className="block px-4 py-2 hover:bg-gray-200">Jobs</Link>
-                            <Link to="/jobPost" className="block px-4 py-2 hover:bg-gray-200">Post a Job</Link>
-                            <Link to="/students" className="block px-4 py-2 hover:bg-gray-200">Students</Link>
-                          </>
-                        )}
-                        {/* <Link
-                          to="/dashboard"
-                          className="block px-4 py-2 hover:bg-gray-100"
-                        >
-                          Dashboard
-                        </Link> */}
                         <button
                           onClick={handleLogout}
                           className="block bg-white w-full text-left px-4 py-2 hover:bg-gray-100"

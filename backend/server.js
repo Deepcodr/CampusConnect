@@ -91,7 +91,7 @@ const userSchema = new mongoose.Schema({
   username: { type: String, required: true },
   password: { type: String, required: true },
   profileCompletion: { type: Boolean, default: false },
-  placedStatus: { type: Boolean, default: false}
+  placedStatus: { type: Boolean, default: false }
 });
 
 jobSchema.index({ expirationDate: 1 }, { expireAfterSeconds: 0 });
@@ -136,10 +136,22 @@ const applicationSchema = new mongoose.Schema({
   },
 });
 
+const feedbackSchema = new mongoose.Schema({
+  studentId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  name: { type: String, required: true },
+  company: { type: String, required: true },
+  package: { type: String, required: true },
+  feedback: { type: String, required: true },
+  questions: { type: String, required: true },
+  feedbackFilled: { type: Boolean, default: false },
+  submittedAt: { type: Date, default: Date.now },
+});
+
 //Models 
 const Application = mongoose.model("Application", applicationSchema, 'applications');
 const User = mongoose.model('User', userSchema, 'users');
 const Job = mongoose.model('Job', jobSchema, 'jobs');
+const Feedback = mongoose.model('Feedback', feedbackSchema, 'feedbacks');
 
 //session
 app.use(
@@ -305,14 +317,12 @@ app.post("/api/jobs/apply", upload, async (req, res) => {
 
     const user = await User.findById(userId);
 
-    if(!user)
-    {
-      return res.status(400).json({error : "User Not Found"});
+    if (!user) {
+      return res.status(400).json({ error: "User Not Found" });
     }
 
-    if(user.placedStatus)
-    {
-      return res.status(400).json({error : "You are already placed."});
+    if (user.placedStatus) {
+      return res.status(400).json({ error: "You are already placed." });
     }
 
     // Ensure required fields are provided
@@ -332,11 +342,10 @@ app.post("/api/jobs/apply", upload, async (req, res) => {
       return res.status(400).json({ error: "Job Not Found." });
     }
 
-    if(user.tenthPercentage<job.tenthPercentage || user.twelthPercentage<job.twelthPercentage || user.engineeringPercentage<job.engineeringPercentage
+    if (user.tenthPercentage < job.tenthPercentage || user.twelthPercentage < job.twelthPercentage || user.engineeringPercentage < job.engineeringPercentage
       || !job.eligibleBranches.includes(user.branch)
-    )
-    {
-      return res.status(400).json({error : "You are not eligible to apply for this job"});
+    ) {
+      return res.status(400).json({ error: "You are not eligible to apply for this job" });
     }
 
     // Prepare the application data
@@ -415,9 +424,8 @@ app.post("/api/login", async (req, res) => {
 //fetch all students
 app.get("/api/admin/students", async (req, res) => {
   try {
-    if(!req.session.user)
-    {
-      return res.status(401).json({error : "Unauthorized"});
+    if (!req.session.user) {
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
     if (req.session.user.role !== "ADMIN") {
@@ -436,9 +444,8 @@ app.get("/api/admin/students", async (req, res) => {
 // Update placed status
 app.put("/api/admin/updateplaced/:id", async (req, res) => {
   try {
-    if(!req.session.user)
-    {
-      return res.status(401).json({error : "Unauthorized"})
+    if (!req.session.user) {
+      return res.status(401).json({ error: "Unauthorized" })
     }
 
     if (req.session.user.role !== "ADMIN") {
@@ -642,7 +649,7 @@ app.get("/api/admin/job/:jobId/applicants", async (req, res) => {
     res.status(200).json(applicants);
   } catch (error) {
     console.error("Error fetching applicants:", error);
-    res.status(500).json({ message: "Server error. Please try again later." });
+    return res.status(500).json({ message: "Server error. Please try again later." });
   }
 });
 
@@ -714,12 +721,16 @@ app.get("/api/admin/job/:jobId/applicants/export", async (req, res) => {
     res.end();
   } catch (error) {
     console.error("Error generating Excel file:", error);
-    res.status(500).json({ message: "Server error while generating Excel file." });
+    return res.status(500).json({ message: "Server error while generating Excel file." });
   }
 });
 
 app.get("/resume", async (req, res) => {
   try {
+    if(!req.session.user)
+    {
+      return res.status(400).json({error : "Unauthorized"});
+    }
     const userId = req.session.user.id;
 
     // Fetch user details from DB
@@ -731,15 +742,111 @@ app.get("/resume", async (req, res) => {
     // Construct the full file path
     const resumePath = path.join(__dirname, user.resume);
 
-    res.download(resumePath, "Resume.pdf", (err) => {
-      if (err) {
-        console.error(err);
-        res.status(500).json({ error: "Error downloading resume" });
-      }
-    });
+    try{
+      await fs.access(resumePath);
+
+      res.download(resumePath, "Resume.pdf", (err) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ error: "Error downloading resume" });
+        }
+      });
+    }catch(e)
+    {
+      console.log(e);
+      return res.status(404).json({error : "Resume File Not Found"});
+    }
+
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+//FEEDBACK
+
+//Fetching all feedbacks
+app.get("/api/feedback/all", async (req, res) => {
+  try {
+    const feedbacks = await Feedback.aggregate([
+      {
+        $group: {
+          _id: "$company", // Group by company name
+          feedbacks: { $push: "$$ROOT" }, // Store all feedbacks under this company
+        },
+      },
+      { $sort: { _id: 1 } }, // Sort companies alphabetically
+    ]);
+
+    return res.json(feedbacks);
+  } catch (error) {
+    console.error("Error fetching feedbacks:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+//Fetching single student feedback
+app.get("/api/feedback/get", async (req, res) => {
+  try {
+    if (!req.session.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const studentId = req.session.user.id;
+    const feedback = await Feedback.findOne({ studentId });
+
+    if (!feedback) {
+      return res.status(404).json({ message: "No feedback found" });
+    }
+
+    res.json(feedback);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching feedback", error });
+  }
+});
+
+//Submit feedback
+app.post("/api/feedback", async (req, res) => {
+  try {
+    const { company, package, feedback, questions } = req.body;
+
+    if (!company || !package || !feedback || !questions) {
+      return res.status(400).json({ message: "All Fields Are Required" });
+    }
+
+    if (!req.session.user) {
+      res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const studentId = req.session.user.id;
+
+    const student = await User.findById(studentId);
+
+    if (!student) {
+      res.status(400).json({ message: "User Not Found!" });
+    }
+
+    // Check if feedback already exists
+    const existingFeedback = await Feedback.findOne({ studentId });
+    if (existingFeedback) {
+      return res.status(400).json({ message: "Feedback already submitted" });
+    }
+
+    // Create new feedback entry
+    const newFeedback = new Feedback({
+      studentId,
+      name: student.name,
+      company,
+      package,
+      feedback,
+      questions,
+      feedbackFilled: true, // Mark as filled
+    });
+
+    await newFeedback.save();
+    res.status(201).json({ message: "Feedback submitted successfully", newFeedback });
+  } catch (error) {
+    res.status(500).json({ message: "Error submitting feedback", error });
   }
 });
 
