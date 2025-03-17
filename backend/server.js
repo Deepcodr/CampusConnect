@@ -12,6 +12,18 @@ const fs = require("fs/promises");
 const excelJS = require("exceljs");
 const moment = require('moment');
 
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || origin === allowedOrigin) {
+      callback(null, true); // Allow request
+    } else {
+      callback(new Error("Not allowed by CORS")); // Reject request
+    }
+  },
+  credentials: true
+}
+)); // Enable CORS for the frontend
+
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -172,17 +184,7 @@ app.use(
   })
 );
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || origin === allowedOrigin) {
-      callback(null, true); // Allow request
-    } else {
-      callback(new Error("Not allowed by CORS")); // Reject request
-    }
-  },
-  credentials: true
-}
-)); // Enable CORS for the frontend
+
 app.use(express.json());
 
 
