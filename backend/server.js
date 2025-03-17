@@ -49,6 +49,7 @@ const PORT = 5000;
 const mongo_uri = process.env.MONGO_URI;
 const session_secret = process.env.SESSION_SECRET;
 const jwt_secret = process.env.JWT_SECRET;
+const allowedOrigin = process.env.FRONTEND_URI;
 
 mongoose
   .connect(mongo_uri)
@@ -172,7 +173,13 @@ app.use(
 );
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: function (origin, callback) {
+    if (!origin || origin === allowedOrigin) {
+      callback(null, true); // Allow request
+    } else {
+      callback(new Error("Not allowed by CORS")); // Reject request
+    }
+  },
   credentials: true
 }
 )); // Enable CORS for the frontend
