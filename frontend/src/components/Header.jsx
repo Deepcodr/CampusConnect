@@ -1,27 +1,6 @@
-// import React, { useState, useEffect } from "react";
-// import { Link, useNavigate } from "react-router-dom";
-// import axios from "axios";
-
-// const Header = () => {
-
-
-//   return (
-//     <header className="flex items-center justify-between px-4 py-3 bg-white text-white">
-//       {/* Logo */}
-//       <Link to="/" className="text-xl font-bold">
-//         CampusPlacement
-//       </Link>
-
-//     </header>
-//   );
-// };
-
-// export default Header;
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-// import { Link } from "react-router-dom"
 import { GraduationCap } from "lucide-react"
 
 function Header() {
@@ -34,7 +13,7 @@ function Header() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/me", {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/me`, {
           withCredentials: true, // Include session cookies
         });
         const [firstname, lastname] = response.data.user.name.split(" ");
@@ -54,7 +33,7 @@ function Header() {
   // Handle logout
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:5000/api/logout", {}, { withCredentials: true });
+      await axios.post(`${import.meta.env.VITE_BACKEND_API_URL}/api/logout`, {}, { withCredentials: true });
       setUser(null); // Clear user state
       navigate("/");
     } catch (error) {

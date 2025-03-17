@@ -20,7 +20,7 @@ const Profile = () => {
     const timer = setTimeout(() => {
       setShowToast(false);
     }, 3000);
-    
+
     const fetchUserData = async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/me", {
@@ -123,9 +123,9 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 text-stone-950">
-      {showToast && <div class="absolute top-0 start-1/2 -translate-x-1/2 p-2">
-        <div class="max-w-xs bg-teal-500 text-sm text-white rounded-xl shadow-lg" role="alert" tabindex="-1" aria-labelledby="hs-toast-solid-color-teal-label">
-          <div id="hs-toast-solid-color-teal-label" class="flex p-4">
+      {showToast && <div className="absolute top-0 start-1/2 -translate-x-1/2 p-2">
+        <div className="max-w-xs bg-teal-500 text-sm text-white rounded-xl shadow-lg" role="alert" tabIndex="-1" aria-labelledby="hs-toast-solid-color-teal-label">
+          <div id="hs-toast-solid-color-teal-label" className="flex p-4">
             Login Successful!
           </div>
         </div>
