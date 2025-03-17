@@ -12,18 +12,6 @@ const fs = require("fs/promises");
 const excelJS = require("exceljs");
 const moment = require('moment');
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || origin === allowedOrigin) {
-      callback(null, true); // Allow request
-    } else {
-      callback(new Error("Not allowed by CORS")); // Reject request
-    }
-  },
-  credentials: true
-}
-)); // Enable CORS for the frontend
-
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -165,6 +153,18 @@ const Application = mongoose.model("Application", applicationSchema, 'applicatio
 const User = mongoose.model('User', userSchema, 'users');
 const Job = mongoose.model('Job', jobSchema, 'jobs');
 const Feedback = mongoose.model('Feedback', feedbackSchema, 'feedbacks');
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || origin === allowedOrigin) {
+      callback(null, true); // Allow request
+    } else {
+      callback(new Error("Not allowed by CORS")); // Reject request
+    }
+  },
+  credentials: true
+}
+)); // Enable CORS for the frontend
 
 //session
 app.use(
