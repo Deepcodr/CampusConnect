@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const Profile = () => {
+  const [showToast, setShowToast] = useState(true);
   const [user, setUser] = useState(null); // State to store user data
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
@@ -16,6 +17,10 @@ const Profile = () => {
   const textReg = /^[A-Za-z]+(?: [A-Za-z]+)*$/;
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+    
     const fetchUserData = async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/me", {
@@ -77,7 +82,7 @@ const Profile = () => {
   };
 
   function validateProfile() {
-    if (!formData.name ||  !textReg.exec(formData.name)) {
+    if (!formData.name || !textReg.exec(formData.name)) {
       alert("Enter a valid name ");
       return false;
     }
@@ -118,6 +123,13 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 text-stone-950">
+      {showToast && <div class="absolute top-0 start-1/2 -translate-x-1/2 p-2">
+        <div class="max-w-xs bg-teal-500 text-sm text-white rounded-xl shadow-lg" role="alert" tabindex="-1" aria-labelledby="hs-toast-solid-color-teal-label">
+          <div id="hs-toast-solid-color-teal-label" class="flex p-4">
+            Login Successful!
+          </div>
+        </div>
+      </div>}
       <div className="bg-white shadow-md rounded-lg p-8 my-4 w-full max-w-2xl">
         <div className="flex items-center justify-center mb-6">
           <img
@@ -126,6 +138,7 @@ const Profile = () => {
             className="w-24 h-24 rounded-full border-2 border-gray-300"
           />
         </div>
+
 
         {!isAdmin ?
           <>

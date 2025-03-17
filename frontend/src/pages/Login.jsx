@@ -37,9 +37,6 @@ const Login = () => {
         formData,
         { withCredentials: true } // Include cookies in the request
       );
-
-      alert("Login successful!");
-      // Redirect to another page or refresh the page
       window.location.href = "/profile";
     } catch (err) {
       setError(err.response?.data?.error || "An error occurred");
