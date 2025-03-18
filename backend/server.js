@@ -160,8 +160,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
 //CORS
 app.use(cors({
   origin: function (origin, callback) {
-    console.log("request from origin :" + origin);
-    if (allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true); // Allow request
     } else {
       callback(new Error("CORS_DENIED")); // Reject request
@@ -558,8 +557,6 @@ app.put("/api/profile", upload, async (req, res) => {
 // Endpoint to check if user is logged in (using session)
 app.get("/api/me", async (req, res) => {
   try {
-    console.log(req.session);
-    console.log(req.sessionID);
     // Check if the user session exists
     if (!req.session.user) {
       return res.status(401).json({ error: "Not authenticated" });
