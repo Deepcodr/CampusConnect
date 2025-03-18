@@ -11,7 +11,7 @@ const multer = require("multer");
 const fs = require("fs/promises");
 const excelJS = require("exceljs");
 const moment = require('moment');
-const {parse} = require('tldts');
+const { parse } = require('tldts');
 
 
 const storage = multer.diskStorage({
@@ -52,9 +52,9 @@ const session_secret = process.env.SESSION_SECRET;
 const jwt_secret = process.env.JWT_SECRET;
 
 mongoose
-.connect(mongo_uri)
-.then(() => console.log('Connected to MongoDB'))
-.catch((err) => console.error('Error connecting to MongoDB:', err));
+  .connect(mongo_uri)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => console.error('Error connecting to MongoDB:', err));
 
 
 const jobSchema = new mongoose.Schema({
@@ -160,8 +160,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
 //CORS
 app.use(cors({
   origin: function (origin, callback) {
-    console.log("request from origin :"+origin);
-
+    console.log("request from origin :" + origin);
     if (allowedOrigins.includes(origin)) {
       callback(null, true); // Allow request
     } else {
@@ -169,7 +168,7 @@ app.use(cors({
     }
   },
   credentials: true
-} 
+}
 )); // Enable CORS for the frontend
 
 //Handler for Errors
@@ -418,7 +417,7 @@ app.post("/api/login", async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user._id, username: user.username },
+      { id: user._id, username: user.username, role: user.role },
       jwt_secret,
       { expiresIn: "2h" } // Token valid for 2 hours
     );
@@ -431,15 +430,23 @@ app.post("/api/login", async (req, res) => {
       name: user.name,
     };
 
-    // Send token and set session cookie
-    res.cookie("session_token", token, {
-      httpOnly: true, // Prevent client-side access to cookies
-      secure: process.env.NODE_ENV === "production", // Use HTTPS in production
-      sameSite: "none", // Strict cookie policy
-      maxAge: 2 * 60 * 60 * 1000, // 2 hours
+    req.session.save((err) => {
+      if (err) {
+        console.error("Session save error:", err);
+        return res.status(500).json({ error: "Session save failed" });
+      }
+
+      res.cookie("session_token", token, {
+        httpOnly: true, // Prevent client-side access to cookies
+        secure: process.env.NODE_ENV === "production", // Use HTTPS in production
+        sameSite: "none", // Strict cookie policy
+        maxAge: 2 * 60 * 60 * 1000, // 2 hours
+      });
+
+      return res.status(200).json({ message: "Login successful" });
     });
 
-    return res.status(200).json({ message: "Login successful" });
+    // Send token and set session cookie
   } catch (error) {
     console.error("Error during login:", error);
     return res.status(500).json({ error: "Internal server error" });
@@ -753,9 +760,8 @@ app.get("/api/admin/job/:jobId/applicants/export", async (req, res) => {
 
 app.get("/resume", async (req, res) => {
   try {
-    if(!req.session.user)
-    {
-      return res.status(400).json({error : "Unauthorized"});
+    if (!req.session.user) {
+      return res.status(400).json({ error: "Unauthorized" });
     }
     const userId = req.session.user.id;
 
@@ -768,7 +774,7 @@ app.get("/resume", async (req, res) => {
     // Construct the full file path
     const resumePath = path.join(__dirname, user.resume);
 
-    try{
+    try {
       await fs.access(resumePath);
 
       res.download(resumePath, "Resume.pdf", (err) => {
@@ -777,10 +783,9 @@ app.get("/resume", async (req, res) => {
           return res.status(500).json({ error: "Error downloading resume" });
         }
       });
-    }catch(e)
-    {
+    } catch (e) {
       console.log(e);
-      return res.status(404).json({error : "Resume File Not Found"});
+      return res.status(404).json({ error: "Resume File Not Found" });
     }
 
   } catch (error) {
