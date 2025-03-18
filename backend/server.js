@@ -11,6 +11,7 @@ const multer = require("multer");
 const fs = require("fs/promises");
 const excelJS = require("exceljs");
 const moment = require('moment');
+const {parse} = require('tldts');
 
 
 const storage = multer.diskStorage({
@@ -159,6 +160,8 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
 //CORS
 app.use(cors({
   origin: function (origin, callback) {
+    console.log("request from origin :"+origin);
+
     if (allowedOrigins.includes(origin)) {
       callback(null, true); // Allow request
     } else {
