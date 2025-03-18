@@ -10,7 +10,7 @@ const AdminJobs = () => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await axios.get("http://localhost:5000/api/me", {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/me`, {
                     withCredentials: true, // Include session cookies
                 });
                 if (response.data.user.role === "ADMIN") {
@@ -28,7 +28,7 @@ const AdminJobs = () => {
 
         const fetchJobs = async () => {
             try {
-                const response = await axios.get("http://localhost:5000/api/admin/jobs");
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/admin/jobs`);
                 setJobs(response.data);
             } catch (error) {
                 console.error("Error fetching jobs:", error);

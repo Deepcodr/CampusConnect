@@ -10,7 +10,7 @@ const JobApplications = () => {
     useEffect(() => {
         const fetchApplicants = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/admin/job/${jobId}/applicants`);
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/admin/job/${jobId}/applicants`);
                 setApplicants(response.data);
             } catch (error) {
                 console.error("Error fetching applicants:", error);
@@ -24,7 +24,7 @@ const JobApplications = () => {
 
     const handleExport = async (jobId) => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/admin/job/${jobId}/applicants/export`, {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/admin/job/${jobId}/applicants/export`, {
                 responseType: "blob",
             });
             const blob = new Blob([response.data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });

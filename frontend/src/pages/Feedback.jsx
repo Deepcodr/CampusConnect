@@ -15,12 +15,12 @@ const Feedback = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get("http://localhost:5000/api/me", {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/me`, {
                     withCredentials: true, // Include session cookies
                 });
                 setUser(response.data.user);
 
-                const res = await axios.get(`http://localhost:5000/api/feedback/get`, {
+                const res = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/feedback/get`, {
                     withCredentials: true,
                 });
                 setFeedback(res.data);
@@ -42,7 +42,7 @@ const Feedback = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post("http://localhost:5000/api/feedback", formData,
+            await axios.post(`${import.meta.env.VITE_BACKEND_API_URL}/api/feedback`, formData,
                 {
                     withCredentials: true,
                 }

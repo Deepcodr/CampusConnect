@@ -23,7 +23,7 @@ const Profile = () => {
 
     const fetchUserData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/me", {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/me`, {
           withCredentials: true, // Include session cookies
         });
         const [firstname, lastname] = response.data.user.name.split(" ");
@@ -67,7 +67,7 @@ const Profile = () => {
         return;
       }
 
-      const response = await axios.put("http://localhost:5000/api/profile", formDataToSend, {
+      const response = await axios.put(`${import.meta.env.VITE_BACKEND_API_URL}/api/profile`, formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
       });
@@ -269,7 +269,7 @@ const Profile = () => {
                       <strong>Engineering Percentage:</strong> {user.engineeringPercentage ? user.engineeringPercentage : "Not Filled"}
                     </p>
                     <p className="mb-2">
-                      <strong>Resume :</strong> {user.resume ? <a href={`http://localhost:5000/resume`} target="_blank" className="text-blue-500 underline">View Resume</a> : "No resume uploaded"}
+                      <strong>Resume :</strong> {user.resume ? <a href={`${import.meta.env.VITE_BACKEND_API_URL}/resume`} target="_blank" className="text-blue-500 underline">View Resume</a> : "No resume uploaded"}
                     </p>
                     <p className="mb-2">
                       <strong>Role:</strong> {user.role}

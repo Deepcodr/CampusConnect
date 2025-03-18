@@ -14,14 +14,14 @@ const JobApply = () => {
         const fetchData = async () => {
             try {
                 // Fetch user data
-                const response = await axios.get("http://localhost:5000/api/me", {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/me`, {
                     withCredentials: true, // Include session cookies
                 });
 
                 setUser(response.data.user); // Set user data
 
                 // Fetch job data
-                const jobResponse = await axios.get(`http://localhost:5000/api/jobs/${jobId}`, {
+                const jobResponse = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/jobs/${jobId}`, {
                     withCredentials: true,
                 });
                 setJob(jobResponse.data);
@@ -44,7 +44,7 @@ const JobApply = () => {
         formData.append("jobId",jobId);
 
         try {
-            const response = await axios.post("http://localhost:5000/api/jobs/apply", formData, {
+            const response = await axios.post(`${import.meta.env.VITE_BACKEND_API_URL}/api/jobs/apply`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },

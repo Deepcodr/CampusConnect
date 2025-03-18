@@ -13,7 +13,7 @@ const Students = () => {
 
     const fetchUser = async () => {
         try {
-            const response = await axios.get("http://localhost:5000/api/me", {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/me`, {
                 withCredentials: true, // Include session cookies
             });
             if (response.data.user.role === "ADMIN") {
@@ -29,7 +29,7 @@ const Students = () => {
 
     const fetchStudents = async () => {
         try {
-            const response = await axios.get("http://localhost:5000/api/admin/students", {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/admin/students`, {
                 withCredentials: true, // Ensure session-based authentication works
             });
             setStudents(response.data);
@@ -41,7 +41,7 @@ const Students = () => {
     const handlePlacedStatusChange = async (studentId, currentStatus) => {
         try {
             const response = await axios.put(
-                `http://localhost:5000/api/admin/updateplaced/${studentId}`,
+                `${import.meta.env.VITE_BACKEND_API_URL}/api/admin/updateplaced/${studentId}`,
                 { placedStatus: !currentStatus },
                 { withCredentials: true }
             );

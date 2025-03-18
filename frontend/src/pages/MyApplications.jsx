@@ -9,7 +9,7 @@ const MyApplications = () => {
     useEffect(() => {
         const fetchApplications = async () => {
             try {
-                const response = await axios.get("http://localhost:5000/api/myapplications", { withCredentials: true });
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/myapplications`, { withCredentials: true });
                 setApplications(response.data);
             } catch (err) {
                 console.error("Error fetching applications:", err);

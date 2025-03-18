@@ -33,7 +33,7 @@ const Login = () => {
     try {
       // Send login data to the backend
       await axios.post(
-        "http://localhost:5000/api/login",
+        `${import.meta.env.VITE_BACKEND_API_URL}/api/login`,
         formData,
         { withCredentials: true } // Include cookies in the request
       );

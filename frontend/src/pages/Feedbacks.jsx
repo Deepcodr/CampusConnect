@@ -11,7 +11,7 @@ const Feedbacks = () => {
     useEffect(() => {
         const fetchFeedbacks = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/api/feedback/all");
+                const res = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/feedback/all`);
                 res.data.forEach(element => {
                     feedbacks["" + element._id] = element;
                 });
