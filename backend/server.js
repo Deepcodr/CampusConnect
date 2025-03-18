@@ -195,6 +195,7 @@ app.use(
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // HTTPS in production
       maxAge: 5 * 60 * 60 * 1000, // 2 hours
+      sameSite: "none"
     },
   })
 );

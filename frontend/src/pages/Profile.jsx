@@ -37,7 +37,6 @@ const Profile = () => {
         setFormData(response.data.user);
 
 
-
       } catch (err) {
         setError("Failed to fetch user data. Please log in.");
       } finally {
