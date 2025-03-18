@@ -157,7 +157,7 @@ const Feedback = mongoose.model('Feedback', feedbackSchema, 'feedbacks');
 app.use(cors({
   origin: function (origin, callback) {
     console.log("Incoming request from:", origin);
-    if (!origin || origin === allowedOrigin) {
+    if (origin === allowedOrigin) {
       console.log("Allowed");
       callback(null, true); // Allow request
     } else {
