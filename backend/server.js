@@ -171,6 +171,9 @@ app.use(cors({
 }
 )); // Enable CORS for the frontend
 
+//For production
+app.set("trust proxy", 1);
+
 //Handler for Errors
 app.use((err, req, res, next) => {
   if (err.message === "CORS_DENIED") {
