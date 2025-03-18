@@ -162,12 +162,21 @@ app.use(cors({
       callback(null, true); // Allow request
     } else {
       console.log("Denied");
-      callback(new Error("Not allowed by CORS")); // Reject request
+      callback(new Error("CORS_DENIED")); // Reject request
     }
   },
   credentials: true
 } 
 )); // Enable CORS for the frontend
+
+//Handler for Errors
+app.use((err, req, res, next) => {
+  if (err.message === "CORS_DENIED") {
+    console.log("CORS Error: Forbidden request");
+    return res.status(403).json({ error: "Forbidden: CORS policy does not allow this origin" });
+  }
+  next(err);
+});
 
 //session
 app.use(
