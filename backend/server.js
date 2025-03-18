@@ -396,7 +396,6 @@ app.post("/api/jobs/apply", upload, async (req, res) => {
 });
 
 app.post("/api/login", async (req, res) => {
-  console.log(process.env.NODE_ENV);
   const { username, password } = req.body;
 
   try {
@@ -436,7 +435,7 @@ app.post("/api/login", async (req, res) => {
     res.cookie("session_token", token, {
       httpOnly: true, // Prevent client-side access to cookies
       secure: process.env.NODE_ENV === "production", // Use HTTPS in production
-      sameSite: "strict", // Strict cookie policy
+      sameSite: "none", // Strict cookie policy
       maxAge: 2 * 60 * 60 * 1000, // 2 hours
     });
 
@@ -547,6 +546,7 @@ app.put("/api/profile", upload, async (req, res) => {
 // Endpoint to check if user is logged in (using session)
 app.get("/api/me", async (req, res) => {
   try {
+    console.log(req.session);
     // Check if the user session exists
     if (!req.session.user) {
       return res.status(401).json({ error: "Not authenticated" });
