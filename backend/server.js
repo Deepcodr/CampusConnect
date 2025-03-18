@@ -189,12 +189,14 @@ app.use(
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI, // MongoDB URI
       collectionName: "sessions",
+      ttl: 2 * 60 * 60,
+      autoRemove: "native"
     }),
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // HTTPS in production
       maxAge: 5 * 60 * 60 * 1000, // 2 hours
-      sameSite: "none"
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     },
   })
 );
@@ -554,6 +556,7 @@ app.put("/api/profile", upload, async (req, res) => {
 app.get("/api/me", async (req, res) => {
   try {
     console.log(req.session);
+    console.log(req.sessionID);
     // Check if the user session exists
     if (!req.session.user) {
       return res.status(401).json({ error: "Not authenticated" });
