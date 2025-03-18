@@ -49,12 +49,11 @@ const PORT = 5000;
 const mongo_uri = process.env.MONGO_URI;
 const session_secret = process.env.SESSION_SECRET;
 const jwt_secret = process.env.JWT_SECRET;
-const allowedOrigin = process.env.FRONTEND_URI;
 
 mongoose
-  .connect(mongo_uri)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.error('Error connecting to MongoDB:', err));
+.connect(mongo_uri)
+.then(() => console.log('Connected to MongoDB'))
+.catch((err) => console.error('Error connecting to MongoDB:', err));
 
 
 const jobSchema = new mongoose.Schema({
@@ -154,14 +153,15 @@ const User = mongoose.model('User', userSchema, 'users');
 const Job = mongoose.model('Job', jobSchema, 'jobs');
 const Feedback = mongoose.model('Feedback', feedbackSchema, 'feedbacks');
 
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
+
+//CORS
 app.use(cors({
   origin: function (origin, callback) {
-    console.log("Incoming request from:", origin);
-    if (origin === allowedOrigin) {
-      console.log("Allowed");
+    if (allowedOrigins.includes(origin)) {
       callback(null, true); // Allow request
     } else {
-      console.log("Denied");
       callback(new Error("CORS_DENIED")); // Reject request
     }
   },
