@@ -396,6 +396,7 @@ app.post("/api/jobs/apply", upload, async (req, res) => {
 });
 
 app.post("/api/login", async (req, res) => {
+  console.log(process.env.NODE_ENV);
   const { username, password } = req.body;
 
   try {
