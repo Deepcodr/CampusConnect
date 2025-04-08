@@ -64,12 +64,13 @@ const jobSchema = new mongoose.Schema({
   about_company: String,
   job_description: String,
   location: String,
-  experience: String,
+  // experience: String,
   package: String,
   eligibleBranches: { type: [String], required: true },
   tenthPercentage: { type: Number, required: true },
   twelthPercentage: { type: Number, required: true },
   engineeringPercentage: { type: Number, required: true },
+  activeBacklog: { type: Number, required: true },
   createdAt: { type: Date, default: Date.now },
   expirationDate: {
     type: Date,
@@ -78,15 +79,16 @@ const jobSchema = new mongoose.Schema({
 });
 
 const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true },
-  year: { type: String, required: true, default: 'First Year' },
-  branch: { type: String, required: true },
-  division: { type: String, required: true },
+  name: { type: String, required: false },
+  email: { type: String, required: false },
+  year: { type: String, required: false, default: 'First Year' },
+  branch: { type: String, required: false },
+  division: { type: String, required: false },
   prn: { type: String, required: true },
   tenthPercentage: { type: Number, required: false },
   twelthPercentage: { type: Number, required: false },
   engineeringPercentage: { type: Number, required: false },
+  activeBacklog: { type: Number, required: false },
   resume: { type: String, required: false },
   role: { type: String, required: true, default: 'STUDENT' },
   username: { type: String, required: true },
@@ -276,12 +278,13 @@ app.post('/api/jobs', async (req, res) => {
     about_company,
     job_description,
     location,
-    experience,
+    // experience,
     package,
     eligibleBranches,
     tenthPercentage,
     twelthPercentage,
     engineeringPercentage,
+    activeBacklog,
     expirationDate,
   } = req.body;
 
@@ -292,12 +295,13 @@ app.post('/api/jobs', async (req, res) => {
     !about_company ||
     !job_description ||
     !location ||
-    !experience ||
+    // !experience ||
     !package ||
     eligibleBranches.length == 0 ||
     !tenthPercentage ||
     !twelthPercentage ||
-    !engineeringPercentage
+    !engineeringPercentage ||
+    !activeBacklog
   ) {
     return res.status(400).json({ error: 'All fields except expirationDate are required' });
   }
@@ -310,12 +314,13 @@ app.post('/api/jobs', async (req, res) => {
       about_company,
       job_description,
       location,
-      experience,
+      // experience,
       package,
       eligibleBranches,
       tenthPercentage,
       twelthPercentage,
       engineeringPercentage,
+      activeBacklog,
       expirationDate: expirationDate
         ? new Date(expirationDate)
         : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // Default to 2 weeks if not provided
@@ -349,9 +354,9 @@ app.post("/api/jobs/apply", upload, async (req, res) => {
       return res.status(400).json({ error: "User Not Found" });
     }
 
-    if (user.placedStatus) {
-      return res.status(400).json({ error: "You are already placed." });
-    }
+    // if (user.placedStatus) {
+    //   return res.status(400).json({ error: "You are already placed." });
+    // }
 
     // Ensure required fields are provided
     if (!user.profileCompletion) {
@@ -375,6 +380,11 @@ app.post("/api/jobs/apply", upload, async (req, res) => {
     ) {
       return res.status(400).json({ error: "You are not eligible to apply for this job" });
     }
+
+    if (user.activeBacklog > job.activeBacklog) {
+      return res.status(400).json({ error: `Only ${job.activeBacklog} live backlog is allowed` });
+    }
+
 
     // Prepare the application data
     const applicationData = {
@@ -519,8 +529,8 @@ app.put("/api/profile", upload, async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const { name, branch, tenthPercentage, twelthPercentage, engineeringPercentage } = req.body;
-    let updateFields = { name, branch, tenthPercentage, twelthPercentage, engineeringPercentage };
+    const { name, email, year, division, branch, tenthPercentage, twelthPercentage, engineeringPercentage, activeBacklog } = req.body;
+    let updateFields = { name, email, year, division, branch, tenthPercentage, twelthPercentage, engineeringPercentage, activeBacklog };
 
     if (req.files.resume && req.files.resume[0]) {
       updateFields.resume = `/uploads/${req.files.resume[0].filename}`;
@@ -533,11 +543,15 @@ app.put("/api/profile", upload, async (req, res) => {
     var isProfileComplete;
 
     if (updatedUser.name &&
+      updatedUser.email &&
+      updatedUser.year &&
+      updatedUser.division &&
       updatedUser.username &&
       updatedUser.branch &&
       updatedUser.tenthPercentage &&
       updatedUser.twelthPercentage &&
       updatedUser.engineeringPercentage &&
+      updatedUser.activeBacklog &&
       updatedUser.resume) {
       isProfileComplete = true;
     } else {
@@ -593,8 +607,9 @@ app.post("/api/logout", (req, res) => {
   }
 });
 
+//Route for Registering new Students
 app.post("/api/register", async (req, res) => {
-  const { name, email, year, division, prn, username, password, branch } = req.body;
+  const { username, password } = req.body;
 
   try {
     // Check if the logged-in user is an admin
@@ -613,12 +628,7 @@ app.post("/api/register", async (req, res) => {
 
     // Create and save the new user
     const newUser = new User({
-      name,
-      email,
-      year,
-      division,
-      prn,
-      branch,
+      prn: username,
       username,
       password: hashedPassword,
       role: "STUDENT", // Default to STUDENT role
@@ -631,6 +641,46 @@ app.post("/api/register", async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
+// app.post("/api/register", async (req, res) => {
+//   const { name, email, year, division, prn, username, password, branch } = req.body;
+
+//   try {
+//     // Check if the logged-in user is an admin
+//     if (!req.session.user || req.session.user.role !== "ADMIN") {
+//       return res.status(403).json({ error: "Access denied" });
+//     }
+
+//     // Check if the username already exists
+//     const existingUser = await User.findOne({ username });
+//     if (existingUser) {
+//       return res.status(400).json({ error: "Username already taken" });
+//     }
+
+//     // Hash the password before saving
+//     var hashedPassword = await bcrypt.hash(password, await bcrypt.genSalt(10));
+
+//     // Create and save the new user
+//     const newUser = new User({
+//       name,
+//       email,
+//       year,
+//       division,
+//       prn,
+//       branch,
+//       username,
+//       password: hashedPassword,
+//       role: "STUDENT", // Default to STUDENT role
+//     });
+
+//     await newUser.save();
+//     return res.status(201).json({ message: "User created successfully" });
+//   } catch (error) {
+//     console.error("Error creating user:", error);
+//     return res.status(500).json({ error: "Internal server error" });
+//   }
+// });
 
 app.get("/api/myapplications", async (req, res) => {
   try {
@@ -703,7 +753,7 @@ app.get("/api/admin/job/:jobId/applicants/export", async (req, res) => {
     // Fetch applications for this job and populate user details
     const applications = await Application.find({ jobId }).populate({
       path: "userId",
-      select: "name email prn",
+      select: "name email prn year division branch tenthPercentage twelthPercentage engineeringPercentage activeBacklog",
     });
 
     if (applications.length === 0) {
@@ -716,20 +766,35 @@ app.get("/api/admin/job/:jobId/applicants/export", async (req, res) => {
 
     // Explicitly set column headers and widths
     worksheet.columns = [
-      { header: "Email", key: "email", width: 30 },
       { header: "Name of Student", key: "name", width: 25 },
+      { header: "Email", key: "email", width: 30 },
       { header: "PRN", key: "prn", width: 15 },
+      { header: "Year", key: "year", width: 15 },
+      { header: "Branch", key: "branch", width: 15 },
+      { header: "Division", key: "division", width: 15 },
+      { header: "Tenth %", key: "tenthPercentage", width: 15 },
+      { header: "Twelth %", key: "twelthPercentage", width: 15 },
+      { header: "Engineering %", key: "engineeringPercentage", width: 15 },
+      { header: "Active Backlogs", key: "activeBacklog", width: 15 },
       { header: "Resume Path", key: "resume", width: 40 },
       { header: "Application ID", key: "applicationId", width: 30 },
       { header: "Applied Time", key: "appliedTime", width: 25 },
     ];
 
+
     // Add data rows explicitly
     applications.forEach((application) => {
       worksheet.addRow({
-        email: application.userId?.email || "N/A",
         name: application.userId?.name || "N/A",
+        email: application.userId?.email || "N/A",
         prn: application.userId?.prn || "N/A",
+        year: application.userId?.year || "N/A",
+        branch: application.userId?.branch || "N/A",
+        division: application.userId?.division || "N/A",
+        tenthPercentage: application.userId?.tenthPercentage || "N/A",
+        twelthPercentage: application.userId?.twelthPercentage || "N/A",
+        engineeringPercentage: application.userId?.engineeringPercentage || "N/A",
+        activeBacklog: application.userId?.activeBacklog || "N/A",
         resume: application.resume || "Not Uploaded",
         applicationId: application._id.toString(),
         appliedTime: new Date(application.appliedAt).toLocaleString(),
@@ -804,13 +869,62 @@ app.get("/api/feedback/all", async (req, res) => {
   try {
     const feedbacks = await Feedback.aggregate([
       {
-        $group: {
-          _id: "$company", // Group by company name
-          feedbacks: { $push: "$$ROOT" }, // Store all feedbacks under this company
+        $lookup: {
+          from: "users", // Referencing the 'users' collection
+          localField: "studentId", // Feedback.studentId
+          foreignField: "_id", // User._id
+          as: "student",
         },
       },
-      { $sort: { _id: 1 } }, // Sort companies alphabetically
+      {
+        $unwind: "$student", // Convert the joined array to an object
+      },
+      {
+        $project: {
+          company: 1,
+          package: 1,
+          feedback: 1,
+          questions: 1,
+          submittedAt: 1,
+          name: 1,
+          "student.prn": 1,
+          "student.branch": 1,
+          "student.email": 1,
+          "student.year": 1,
+        },
+      },
+      {
+        $group: {
+          _id: "$company", // Group by company name
+          feedbacks: {
+            $push: {
+              _id: "$_id",
+              name: "$name",
+              package: "$package",
+              feedback: "$feedback",
+              questions: "$questions",
+              submittedAt: "$submittedAt",
+              prn: "$student.prn",
+              branch: "$student.branch",
+              email: "$student.email",
+              year: "$student.year"
+            },
+          },
+        },
+      },
+      {
+        $sort: { _id: 1 }, // Sort companies alphabetically
+      },
     ]);
+    // const feedbacks = await Feedback.aggregate([
+    //   {
+    //     $group: {
+    //       _id: "$company", // Group by company name
+    //       feedbacks: { $push: "$$ROOT" }, // Store all feedbacks under this company
+    //     },
+    //   },
+    //   { $sort: { _id: 1 } }, // Sort companies alphabetically
+    // ]);
 
     return res.json(feedbacks);
   } catch (error) {

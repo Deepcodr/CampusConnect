@@ -50,11 +50,14 @@ const JobApply = () => {
                 },
                 withCredentials: true
             });
+            alert("Application submitted successfully!");
             setSuccess("Application submitted successfully!");
         } catch (err) {
             if (err.status === 409) {
+                alert("You have already Applied to this job.");
                 setError("You have already Applied to this job.");
             } else {
+                alert(err.response.data.error);
                 setError(err.response.data.error);
             }
         }
@@ -122,6 +125,10 @@ const JobApply = () => {
             <div className="mb-2">
                 <h3 className="block font-semibold text-gray-700 mb-1">Required Engineering Aggregate :</h3>
                 <div>{job.engineeringPercentage}</div>
+            </div>
+            <div className="mb-2">
+                <h3 className="block font-semibold text-gray-700 mb-1">Allowed Active Backlogs :</h3>
+                <div>{job.activeBacklog}</div>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>

@@ -10,18 +10,15 @@ const Registration = () => {
   const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,12}$/;
 
   const [userData, setUserData] = useState({
-    name: "",
-    email: "",
+    // name: "",
+    // email: "",
     username: "",
     password: "",
-    prn: "",
-    division: "",
-    year: "First Year",
-    branch: ""
+    // prn: "",
+    // division: "",
+    // year: "First Year",
+    // branch: ""
   });
-
-  const years=["First Year","Second Year","Third Year","Final Year"];
-  const branches = ["CSE","ENTC","CHEM","MECH","CIVIL"];
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [error, setError] = useState(null);
@@ -62,14 +59,14 @@ const Registration = () => {
       });
       alert("User created successfully!");
       setUserData({
-        name: "",
-        email: "",
+        // name: "",
+        // email: "",
         username: "",
         password: "",
-        prn: "",
-        division: "",
-        year: "First Year",
-        branch: "",
+        // prn: "",
+        // division: "",
+        // year: "First Year",
+        // branch: "",
       });
     } catch (err) {
       setError(err.response?.data?.error || "Failed to create user.");
@@ -77,46 +74,46 @@ const Registration = () => {
   };
 
   function validateRegistration() {
-    if(!textReg.exec(userData.name))
-    {
-      alert("Enter a valid name");
-      return false;
-    }
+    // if(!textReg.exec(userData.name))
+    // {
+    //   alert("Enter a valid name");
+    //   return false;
+    // }
 
-    if(!divRegex.exec(userData.division))
-    {
-      alert("Enter a valid division");
-      return false;
-    }
+    // if(!divRegex.exec(userData.division))
+    // {
+    //   alert("Enter a valid division");
+    //   return false;
+    // }
 
-    if (!emailReg.exec(userData.email)) {
-      alert("Enter valid  email");
-      return false;
-    }
+    // if (!emailReg.exec(userData.email)) {
+    //   alert("Enter valid  email");
+    //   return false;
+    // }
 
-    if(userData.prn!=userData.username)
-    {
-      alert("Username should be same as PRN");
-      return false;
-    }
+    // if(userData.prn!=userData.username)
+    // {
+    //   alert("Username should be same as PRN");
+    //   return false;
+    // }
 
-    if(!years.includes(userData.year))
-    {
-      alert("Select a valid year");
-      return false;
-    }
+    // if(!years.includes(userData.year))
+    // {
+    //   alert("Select a valid year");
+    //   return false;
+    // }
 
-    if(!branches.includes(userData.branch))
-    {
-      alert("Select a valid branch");
-      return false;
-    }
+    // if(!branches.includes(userData.branch))
+    // {
+    //   alert("Select a valid branch");
+    //   return false;
+    // }
 
-    if(!prnRegex.exec(userData.prn))
-    {
-      alert("Enter valid PRN");
-      return false;
-    }
+    // if(!prnRegex.exec(userData.prn))
+    // {
+    //   alert("Enter valid PRN");
+    //   return false;
+    // }
 
     if (!prnRegex.exec(userData.username)) {
       alert("Enter Valid Username");
@@ -141,7 +138,7 @@ const Registration = () => {
       <h1 className="text-2xl font-bold mb-4">Register a New Student</h1>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
+        {/* <div>
           <label className="block text-sm font-medium">Name</label>
           <input
             type="text"
@@ -215,7 +212,7 @@ const Registration = () => {
             onChange={(e) => setUserData({ ...userData, division: e.target.value })}
             required
           />
-        </div>
+        </div> */}
         <div>
           <label className="block text-sm font-medium">Username</label>
           <input
