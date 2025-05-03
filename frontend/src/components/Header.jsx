@@ -16,9 +16,9 @@ function Header() {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/me`, {
           withCredentials: true, // Include session cookies
         });
-        const [firstname, lastname] = response.data.user.name.split(" ");
-        const generatedImageUrl = `https://ui-avatars.com/api/?name=${firstname}+${lastname}`;
-        setProfileImage(generatedImageUrl);
+        // const [firstname, lastname] = response.data.user.name.split(" ");
+        // const generatedImageUrl = `https://ui-avatars.com/api/?name=${firstname}+${lastname}`;
+        setProfileImage(`/userprofile.svg`);
 
         setUser(response.data.user);
 
@@ -55,7 +55,7 @@ function Header() {
                 Home
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link to="/about" className="text-gray-600 hover:text-blue-600">
                 About
               </Link>
@@ -64,12 +64,17 @@ function Header() {
               <Link to="/feedbacks" className="text-gray-600 hover:text-blue-600">
                 Feedback
               </Link>
-            </li>
+            </li> */}
             {/* Student Links */}
             {user ? ((user.role === "STUDENT") && (
               <>
                 <li><Link to="/jobs" className="text-gray-600 hover:text-blue-600">Jobs</Link></li>
                 <li><Link to="/myapplications" className="text-gray-600 hover:text-blue-600">Applications</Link></li>
+                <li>
+                  <Link to="/feedbacks" className="text-gray-600 hover:text-blue-600">
+                    Feedback
+                  </Link>
+                </li>
                 {user.placedStatus ?
                   <li>
                     <Link to="/feedback" className="text-gray-600 hover:text-blue-600">Add Feedback</Link>
@@ -94,6 +99,11 @@ function Header() {
                 </li>
                 <li>
                   <Link to="/students" className="text-gray-600 hover:text-blue-600">Students</Link>
+                </li>
+                <li>
+                  <Link to="/feedbacks" className="text-gray-600 hover:text-blue-600">
+                    Feedback
+                  </Link>
                 </li>
               </>
             )) : <></>}
@@ -130,12 +140,20 @@ function Header() {
                   </div>
                 </div>
               ) : (
-                <Link
-                  to="/login"
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  Login
-                </Link>
+                <>
+                  <Link
+                    to="/login"
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-gray-600 hover:text-white"
+                  >
+                    Student Login
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-gray-600 hover:text-white"
+                  >
+                    Admin Login
+                  </Link>
+                </>
               )}
             </div>
           </ul>

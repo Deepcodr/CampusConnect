@@ -12,9 +12,12 @@ const Profile = () => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   const branches = ["CSE", "ENTC", "CHEM", "MECH", "CIVIL"];
+  const years = ["First Year", "Second Year", "Third Year", "Final Year"];
 
   const emailReg = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
   const textReg = /^[A-Za-z]+(?: [A-Za-z]+)*$/;
+  const prnRegex = /^\d{2}UG(CS|ET|CH|ME|CE)\d{5}$/;
+  const divRegex = /^[A-Z]$/;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -26,13 +29,14 @@ const Profile = () => {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/me`, {
           withCredentials: true, // Include session cookies
         });
-        const [firstname, lastname] = response.data.user.name.split(" ");
-        const generatedImageUrl = `https://ui-avatars.com/api/?name=${firstname}+${lastname}`;
-        setProfileImage(generatedImageUrl);
+        // const [firstname, lastname] = response.data.user.name.split(" ");
+        // const generatedImageUrl = `https://ui-avatars.com/api/?name=${firstname}+${lastname}`;
+        setProfileImage(`/userprofile.svg`);
         // Set user data
         if (response.data.user.role == "ADMIN") {
           setIsAdmin(true);
         }
+        console.log(response.data.user);
         setUser(response.data.user);
         setFormData(response.data.user);
 
@@ -88,6 +92,16 @@ const Profile = () => {
 
     if (!formData.email || !emailReg.exec(formData.email)) {
       alert("Enter a valid email");
+      return false;
+    }
+
+    if (!years.includes(formData.year)) {
+      alert("Select a valid year");
+      return false;
+    }
+
+    if (!divRegex.exec(formData.division)) {
+      alert("Enter a valid division");
       return false;
     }
 
@@ -173,14 +187,35 @@ const Profile = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Branch</label>
-                    {/* <input
-                      type="email"
+                    <label className="block text-sm font-medium">Year</label>
+                    <select
                       className="w-full bg-slate-50 p-2 border rounded"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      value={formData.year}
+                      defaultValue="Select Year"
+                      onChange={(e) => setFormData({ ...formData, year: e.target.value })}
+                    >
+                      <option disabled>Select Year</option>
+                      <option>First Year</option>
+                      <option>Second Year</option>
+                      <option>Third Year</option>
+                      <option>Final Year</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium">Division</label>
+                    <input
+                      type="text"
+                      className="w-full bg-slate-50 p-2 border rounded"
+                      id="division"
+                      value={formData.division}
+                      onChange={(e) => setFormData({ ...formData, division: e.target.value })}
                       required
-                    /> */}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Branch</label>
                     <select name="branch" defaultValue="Select Branch" onChange={handleChange} disabled={!isEditing} className="w-full p-2 border rounded bg-slate-50">
                       <option disabled>Select Branch</option>
                       {["CSE", "ENTC", "MECH", "CIVIL", "CHEM"].map((branch) => (
@@ -223,15 +258,20 @@ const Profile = () => {
                       required
                     />
                   </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Active Backlog</label>
+                    <input
+                      type="number"
+                      className="w-full bg-slate-50 p-2 border rounded"
+                      value={formData.activeBacklog}
+                      onChange={(e) => setFormData({ ...formData, activeBacklog: e.target.value })}
+                      required
+                    />
+                  </div>
+
                   <div>
                     <label className="block text-sm font-medium mb-2">Resume</label>
-                    {/* <input
-                      type="email"
-                      className="w-full bg-slate-50 p-2 border rounded"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      required
-                    /> */}
                     <input type="file" name="resume" accept="application/pdf" onChange={handleFileChange} className="w-full p-2 border rounded" />
                   </div>
 
@@ -241,22 +281,22 @@ const Profile = () => {
                 </>
                 :
                 <>
-                  <h1 className="text-2xl font-bold text-center mb-4">{user.name}</h1>
+                  <h1 className="text-2xl font-bold text-center mb-4">{user.name ? user.name : "Name Not Available"}</h1>
                   <div className="text-gray-700">
                     <p className="mb-2">
-                      <strong>Email:</strong> {user.email}
+                      <strong>Email:</strong> {user.email ? user.email : "Not Available"}
                     </p>
                     <p className="mb-2">
-                      <strong>PRN:</strong> {user.prn}
+                      <strong>PRN:</strong> {user.prn ? user.prn : "Not Available"}
                     </p>
                     <p className="mb-2">
-                      <strong>Year:</strong> {user.year}
+                      <strong>Year:</strong> {user.year ? user.year : "Not Available"}
                     </p>
                     <p className="mb-2">
-                      <strong>Branch:</strong> {user.branch}
+                      <strong>Branch:</strong> {user.branch ? user.branch : "Not Available"}
                     </p>
                     <p className="mb-2">
-                      <strong>Division:</strong> {user.division}
+                      <strong>Division:</strong> {user.division ? user.division : "Not Available"}
                     </p>
                     <p className="mb-2">
                       <strong>10th Percentage:</strong> {user.tenthPercentage ? user.tenthPercentage : "Not Filled"}
@@ -268,15 +308,23 @@ const Profile = () => {
                       <strong>Engineering Percentage:</strong> {user.engineeringPercentage ? user.engineeringPercentage : "Not Filled"}
                     </p>
                     <p className="mb-2">
+                      <strong>Active Backlog:</strong> {user.activeBacklog>=0 ? user.activeBacklog : "Not Filled"}
+                    </p>
+                    <p className="mb-2">
                       <strong>Resume :</strong> {user.resume ? <a href={`${import.meta.env.VITE_BACKEND_API_URL}/resume`} target="_blank" className="text-blue-500 underline">View Resume</a> : "No resume uploaded"}
                     </p>
                     <p className="mb-2">
                       <strong>Role:</strong> {user.role}
                     </p>
+
+                  </div>
+                  {/* {
+                    !user.profileCompletion ?  */}
                     <div className="flex gap-4 mt-4">
                       <button onClick={() => setIsEditing(true)} className="bg-blue-500 text-white px-4 py-2 rounded">Edit</button>
                     </div>
-                  </div>
+                     {/* : <></>
+                  } */}
                 </>
               }
 

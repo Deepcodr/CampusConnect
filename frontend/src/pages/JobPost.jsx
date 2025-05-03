@@ -15,11 +15,12 @@ const JobPost = () => {
         about_company: "",
         job_description: "",
         location: "",
-        experience: "",
+        // experience: "",
         eligibleBranches: [],
         tenthPercentage: "",
         twelthPercentage: "",
         engineeringPercentage: "",
+        activeBacklog: "",
         package: "",
         expirationDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
     });
@@ -59,6 +60,7 @@ const JobPost = () => {
             });
 
             if (response.ok) {
+                alert("Job Posted Successfully")
                 setMessage("Job posted successfully!");
                 setJobData({
                     job_name: "",
@@ -67,19 +69,22 @@ const JobPost = () => {
                     about_company: "",
                     job_description: "",
                     location: "",
-                    experience: "",
+                    // experience: "",
                     eligibleBranches: [],
                     tenthPercentage: "",
                     twelthPercentage: "",
                     engineeringPercentage: "",
+                    activeBacklog: "",
                     package: "",
                     expirationDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
                 });
             } else {
+                alert("Failed to post job. Please try again.");
                 setMessage("Failed to post job. Please try again.");
             }
         } catch (error) {
             console.error("Error posting job:", error);
+            alert("An error occurred. Please try again.");
             setMessage("An error occurred. Please try again.");
         }
     };
@@ -106,14 +111,20 @@ const JobPost = () => {
             return false;
         }
 
-        if (!numReg.exec(jobData.experience)) {
-            alert("Enter valid experience");
+        // if (!numReg.exec(jobData.experience)) {
+        //     alert("Enter valid experience");
+        //     return false;
+        // }
+
+        if(jobData.tenthPercentage<0 || jobData.tenthPercentage>100 || jobData.twelthPercentage<0 || jobData.twelthPercentage>100 || jobData.engineeringPercentage<0 || jobData.engineeringPercentage>100)
+        {
+            alert("Enter valid marks");
             return false;
         }
 
-        if(jobData.tenthPercentage<0 || jobData.twelthPercentage<0 || jobData.engineeringPercentage<0)
+        if(jobData.activeBacklog < 0 )
         {
-            alert("Enter valid marks");
+            alert("Enter valid Active Backlog");
             return false;
         }
 
@@ -235,7 +246,7 @@ const JobPost = () => {
                     </div>
 
                     {/* Experience */}
-                    <div className="mb-4">
+                    {/* <div className="mb-4">
                         <label htmlFor="experience" className="block font-medium mb-1">
                             Experience (e.g., 2 years)
                         </label>
@@ -248,7 +259,7 @@ const JobPost = () => {
                             className="w-full bg-slate-50 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />
-                    </div>
+                    </div> */}
 
                     {/* Package */}
                     <div className="mb-4">
@@ -303,6 +314,18 @@ const JobPost = () => {
                                 value={jobData.engineeringPercentage}
                                 onChange={(e) =>
                                     setJobData({ ...jobData, engineeringPercentage: e.target.value })
+                                }
+                                className="w-full p-2 border rounded bg-white text-stone-950"
+                            />
+                        </div>
+                        <div>
+                            <label className="block font-medium">Active Backlog</label>
+                            <input
+                                type="number"
+                                placeholder="e.g. 1/2"
+                                value={jobData.activeBacklog}
+                                onChange={(e) =>
+                                    setJobData({ ...jobData, activeBacklog: e.target.value })
                                 }
                                 className="w-full p-2 border rounded bg-white text-stone-950"
                             />

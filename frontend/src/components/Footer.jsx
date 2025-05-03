@@ -38,7 +38,7 @@ function Footer() {
             <h4 className="text-lg font-semibold mb-2">Connect With Us</h4>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-gray-400 hover:text-white">
+                <a target="blank" href="https://www.facebook.com/tkietwarana/" className="text-gray-400 hover:text-white">
                   Facebook
                 </a>
               </li>
@@ -48,7 +48,7 @@ function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-white">
+                <a target="blank" href="https://www.linkedin.com/school/tatyasaheb-kore-institute-of-engineering-&-technology-warananagar/posts/?feedView=all" className="text-gray-400 hover:text-white">
                   LinkedIn
                 </a>
               </li>

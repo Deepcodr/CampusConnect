@@ -12,6 +12,7 @@ const Feedbacks = () => {
         const fetchFeedbacks = async () => {
             try {
                 const res = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/feedback/all`);
+                console.log(res.data);
                 res.data.forEach(element => {
                     feedbacks["" + element._id] = element;
                 });
@@ -79,11 +80,15 @@ const Feedbacks = () => {
                         </button>
 
                         {/* Feedback Details */}
-                        <h2 className="text-lg font-bold mt-8">{selectedFeedback.name} - {selectedFeedback.package}</h2>
-                        <p className="text-sm text-gray-600 mt-2">{selectedFeedback.feedback}</p>
-
-                        <h4 className="font-semibold mt-3">Interview Questions:</h4>
-                        <p className="text-sm text-gray-600">{selectedFeedback.questions}</p>
+                        <p className="text-sm text-gray-600 mt-8"><strong>NAME : </strong>{selectedFeedback.name}</p>
+                        <p className="text-sm text-gray-600 mt-2"><strong>PACKAGE : </strong>{selectedFeedback.package}</p>
+                        <p className="text-sm text-gray-600 mt-2"><strong>PRN : </strong>{selectedFeedback.prn}</p>
+                        <p className="text-sm text-gray-600 mt-2"><strong>YEAR : </strong>{selectedFeedback.year}</p>
+                        <p className="text-sm text-gray-600 mt-2"><strong>BRANCH : </strong>{selectedFeedback.branch}</p>
+                        <p className="text-sm text-gray-600 mt-2"><strong>DIVISION : </strong>{selectedFeedback.division}</p>
+                        <p className="text-sm text-gray-600 mt-2"><strong>EMAIL : </strong>{selectedFeedback.email}</p>
+                        <p className="text-sm text-gray-600 mt-2"><strong>FEEDBACK : </strong><br />{selectedFeedback.feedback}</p>
+                        <p className="text-sm text-gray-600"><strong>INTERVIEW QUESTIONS : </strong><br />{selectedFeedback.questions}</p>
                     </div>
                 </div>
             )}
