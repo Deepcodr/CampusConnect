@@ -308,7 +308,7 @@ const Profile = () => {
                       <strong>Engineering Percentage:</strong> {user.engineeringPercentage ? user.engineeringPercentage : "Not Filled"}
                     </p>
                     <p className="mb-2">
-                      <strong>Active Backlog:</strong> {user.activeBacklog ? user.activeBacklog : "Not Filled"}
+                      <strong>Active Backlog:</strong> {user.activeBacklog>=0 ? user.activeBacklog : "Not Filled"}
                     </p>
                     <p className="mb-2">
                       <strong>Resume :</strong> {user.resume ? <a href={`${import.meta.env.VITE_BACKEND_API_URL}/resume`} target="_blank" className="text-blue-500 underline">View Resume</a> : "No resume uploaded"}
