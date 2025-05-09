@@ -37,6 +37,7 @@ const Login = () => {
         formData,
         { withCredentials: true } // Include cookies in the request
       );
+      sessionStorage.setItem("showLoginToast", "true");
       window.location.href = "/profile";
     } catch (err) {
       setError(err.response?.data?.error || "An error occurred");

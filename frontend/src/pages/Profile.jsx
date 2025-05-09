@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const Profile = () => {
-  const [showToast, setShowToast] = useState(true);
+  const [showToast,setShowToast] = useState(sessionStorage.getItem("showLoginToast"));
   const [user, setUser] = useState(null); // State to store user data
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
@@ -20,9 +20,13 @@ const Profile = () => {
   const divRegex = /^[A-Z]$/;
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowToast(false);
-    }, 3000);
+    if(showToast==="true")
+    {
+      const timer = setTimeout(() => {
+        sessionStorage.setItem("showLoginToast","false");
+        setShowToast("false");
+      }, 3000);
+    }
 
     const fetchUserData = async () => {
       try {
@@ -136,7 +140,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 text-stone-950">
-      {showToast && <div className="absolute top-0 start-1/2 -translate-x-1/2 p-2">
+      {showToast==="true" && <div className="absolute top-0 start-1/2 -translate-x-1/2 p-2">
         <div className="max-w-xs bg-teal-500 text-sm text-white rounded-xl shadow-lg" role="alert" tabIndex="-1" aria-labelledby="hs-toast-solid-color-teal-label">
           <div id="hs-toast-solid-color-teal-label" className="flex p-4">
             Login Successful!

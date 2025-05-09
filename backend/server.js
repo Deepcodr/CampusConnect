@@ -12,6 +12,7 @@ const fs = require("fs/promises");
 const excelJS = require("exceljs");
 const moment = require('moment');
 const { parse } = require('tldts');
+const cron = require("node-cron");
 
 
 const storage = multer.diskStorage({
@@ -76,6 +77,7 @@ const jobSchema = new mongoose.Schema({
     type: Date,
     default: () => Date.now() + 2 * 24 * 60 * 60 * 1000,
   },
+  expiredStatus: { type: Boolean, default: false }
 });
 
 const userSchema = new mongoose.Schema({
@@ -97,7 +99,19 @@ const userSchema = new mongoose.Schema({
   placedStatus: { type: Boolean, default: false }
 });
 
-jobSchema.index({ expirationDate: 1 }, { expireAfterSeconds: 0 });
+cron.schedule("*/5 * * * *", async () => {
+  try {
+    const now = new Date();
+    const result = await Job.updateMany(
+      { expirationDate: { $lte: now }, expiredStatus: false },
+      { $set: { expiredStatus: true } }
+    );
+    console.log(`Marked ${result.modifiedCount} jobs as expired.`);
+  } catch (error) {
+    console.error("Error updating expired jobs:", error);
+  }
+});
+
 
 const applicationSchema = new mongoose.Schema({
   jobId: {
@@ -260,7 +274,7 @@ app.get('/api/getjobs', async (req, res) => {
     const appliedJobIds = appliedJobs.map((application) => application.jobId);
 
     // Fetch jobs that the student has not applied to
-    const jobs = await Job.find({ _id: { $nin: appliedJobIds } });
+    const jobs = await Job.find({ _id: { $nin: appliedJobIds }, expiredStatus: false, });
 
     res.status(200).json(jobs);
   } catch (error) {
@@ -341,7 +355,7 @@ app.post("/api/jobs/apply", upload, async (req, res) => {
     var userId = req.session.user.id;
 
     if (!jobId) {
-      return res.status(400).json({ error: "Job Not Found." });
+      return res.status(400).json({ error: "Job Id Not Found." });
     }
 
     if (!userId) {
@@ -354,9 +368,9 @@ app.post("/api/jobs/apply", upload, async (req, res) => {
       return res.status(400).json({ error: "User Not Found" });
     }
 
-    // if (user.placedStatus) {
-    //   return res.status(400).json({ error: "You are already placed." });
-    // }
+    if (user.placedStatus) {
+      return res.status(400).json({ error: "You are already placed." });
+    }
 
     // Ensure required fields are provided
     if (!user.profileCompletion) {
@@ -373,6 +387,11 @@ app.post("/api/jobs/apply", upload, async (req, res) => {
 
     if (!job) {
       return res.status(400).json({ error: "Job Not Found." });
+    }
+
+    if(job.expiredStatus==true)
+    {
+      return res.status(400).json({error : "Job is Expired"});
     }
 
     if (user.tenthPercentage < job.tenthPercentage || user.twelthPercentage < job.twelthPercentage || user.engineeringPercentage < job.engineeringPercentage
@@ -695,8 +714,8 @@ app.get("/api/myapplications", async (req, res) => {
     // Prepare response data
     const responseData = applications.map(app => ({
       applicationId: app._id,
-      jobName: app.jobId.job_name,
-      company: app.jobId.company,
+      jobName: app.jobId?.job_name,
+      company: app.jobId?.company,
       appliedTime: app.appliedAt.toLocaleString(),
     }));
 
@@ -889,6 +908,7 @@ app.get("/api/feedback/all", async (req, res) => {
           name: 1,
           "student.prn": 1,
           "student.branch": 1,
+          "student.division": 1,
           "student.email": 1,
           "student.year": 1,
         },
@@ -906,6 +926,7 @@ app.get("/api/feedback/all", async (req, res) => {
               submittedAt: "$submittedAt",
               prn: "$student.prn",
               branch: "$student.branch",
+              division: "$student.division",
               email: "$student.email",
               year: "$student.year"
             },

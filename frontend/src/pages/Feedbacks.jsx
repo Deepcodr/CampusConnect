@@ -34,7 +34,7 @@ const Feedbacks = () => {
         <div className="p-6">
             <h1 className="text-2xl font-bold mb-4">Feedbacks</h1>
 
-            <div className="space-y-4">
+            {!showModal && <div className="space-y-4">
                 {Object.keys(feedbacks).map((company) => (
                     <div key={company} className="border rounded-lg shadow">
                         {/* Company Header */}
@@ -65,12 +65,12 @@ const Feedbacks = () => {
                         )}
                     </div>
                 ))}
-            </div>
+            </div>}
 
             {/* Modal for Detailed Feedback */}
             {showModal && selectedFeedback && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-lg relative">
+                <div className="flex items-center justify-center">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-full relative">
                         {/* Close Button */}
                         <button
                             className="absolute top-2 right-2 bg-gray-300 text-stone-500 hover:text-gray-700"
@@ -80,15 +80,18 @@ const Feedbacks = () => {
                         </button>
 
                         {/* Feedback Details */}
-                        <p className="text-sm text-gray-600 mt-8"><strong>NAME : </strong>{selectedFeedback.name}</p>
-                        <p className="text-sm text-gray-600 mt-2"><strong>PACKAGE : </strong>{selectedFeedback.package}</p>
-                        <p className="text-sm text-gray-600 mt-2"><strong>PRN : </strong>{selectedFeedback.prn}</p>
-                        <p className="text-sm text-gray-600 mt-2"><strong>YEAR : </strong>{selectedFeedback.year}</p>
-                        <p className="text-sm text-gray-600 mt-2"><strong>BRANCH : </strong>{selectedFeedback.branch}</p>
-                        <p className="text-sm text-gray-600 mt-2"><strong>DIVISION : </strong>{selectedFeedback.division}</p>
-                        <p className="text-sm text-gray-600 mt-2"><strong>EMAIL : </strong>{selectedFeedback.email}</p>
-                        <p className="text-sm text-gray-600 mt-2"><strong>FEEDBACK : </strong><br />{selectedFeedback.feedback}</p>
-                        <p className="text-sm text-gray-600"><strong>INTERVIEW QUESTIONS : </strong><br />{selectedFeedback.questions}</p>
+                        <h1 className="text-gray-600 mt-8"><strong>NAME : </strong>{selectedFeedback.name}</h1>
+                        <h2 className="text-2xl text-gray-600 mt-2"><strong>PACKAGE : </strong>{selectedFeedback.package}</h2>
+                        <br />
+                        <p className="text-xl text-gray-600 mt-2"><strong>PRN : </strong>{selectedFeedback.prn}</p>
+                        <p className="text-xl text-gray-600 mt-2"><strong>YEAR : </strong>{selectedFeedback.year}</p>
+                        <p className="text-xl text-gray-600 mt-2"><strong>BRANCH : </strong>{selectedFeedback.branch}</p>
+                        <p className="text-xl text-gray-600 mt-2"><strong>DIVISION : </strong>{selectedFeedback.division}</p>
+                        <p className="text-xl text-gray-600 mt-2"><strong>EMAIL : </strong>{selectedFeedback.email}</p>
+                        <br />
+                        <p className="text-xl text-gray-600 mt-2"><strong>FEEDBACK : </strong><br />{selectedFeedback.feedback}</p>
+                        <br />
+                        <p className="text-xl text-gray-600"><strong>INTERVIEW QUESTIONS : </strong><br />{selectedFeedback.questions}</p>
                     </div>
                 </div>
             )}
