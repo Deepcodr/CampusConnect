@@ -44,7 +44,7 @@ const MyApplications = () => {
     }
 
     return (
-        <div className="mx-auto h-[70vh] p-4 bg-gray-100 text-stone-950">
+        <div className="mx-auto h-[70vh] p-4 bg-gray-100 text-stone-950 overflow-scroll">
             <h2 className="text-2xl font-bold mb-6 text-center">My Applications</h2>
             <div className="p-4 mt-4 space-y-4 flex flex-col justify-center">
                 {applications.length === 0 ? (
