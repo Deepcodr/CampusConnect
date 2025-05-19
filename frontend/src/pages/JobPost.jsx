@@ -1,13 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import axios from "axios";
 
 
 const JobPost = () => {
     const jobIdRegex = /^[A-Za-z0-9]+$/;
     const textReg = /^[A-Za-z]+(?: [A-Za-z]+)*$/;
     const numReg = /^[0-9]+$/;
+    const [error, setError] = useState(null); // Error state
 
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/me`, {
+                    withCredentials: true, // Include session cookies
+                });
+            } catch (err) {
+                console.log(err);
+                setError("Please log in to continue");
+            }
+        };
+
+        fetchUserData();
+    })
     const [jobData, setJobData] = useState({
         job_name: "",
         job_id: "",
@@ -45,11 +61,11 @@ const JobPost = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!validatePost()) {
             return;
         }
-        
+
         try {
             const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/api/jobs`, {
                 method: "POST",
@@ -105,8 +121,7 @@ const JobPost = () => {
             return false;
         }
 
-        if(!textReg.exec(jobData.location))
-        {
+        if (!textReg.exec(jobData.location)) {
             alert("Enter a valid location");
             return false;
         }
@@ -116,20 +131,31 @@ const JobPost = () => {
         //     return false;
         // }
 
-        if(jobData.tenthPercentage<0 || jobData.tenthPercentage>100 || jobData.twelthPercentage<0 || jobData.twelthPercentage>100 || jobData.engineeringPercentage<0 || jobData.engineeringPercentage>100)
-        {
+        if (jobData.tenthPercentage < 0 || jobData.tenthPercentage > 100 || jobData.twelthPercentage < 0 || jobData.twelthPercentage > 100 || jobData.engineeringPercentage < 0 || jobData.engineeringPercentage > 100) {
             alert("Enter valid marks");
             return false;
         }
 
-        if(jobData.activeBacklog < 0 )
-        {
+        if (jobData.activeBacklog < 0) {
             alert("Enter valid Active Backlog");
             return false;
         }
 
         return true;
     }
+
+    if (error) {
+        return (
+            <div className="text-center text-red-500 mt-10">
+                {error}
+                <br />
+                <a href="/login" className="text-blue-500 underline">
+                    Log in here
+                </a>
+            </div>
+        );
+    }
+
 
     return (
         <div className="min-h-screen bg-gray-100 text-stone-950 flex items-center justify-center p-4">

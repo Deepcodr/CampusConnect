@@ -11,6 +11,7 @@ const Feedback = () => {
         feedback: "",
         questions: "",
     });
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -25,7 +26,7 @@ const Feedback = () => {
                 });
                 setFeedback(res.data);
             } catch (err) {
-                // setError("Failed to fetch user data. Please log in.");
+                setError("Failed to fetch user data. Please log in.");
                 setFeedback(null);
             } finally {
                 setLoading(false); // Stop loading
@@ -54,9 +55,21 @@ const Feedback = () => {
             console.error("Error submitting feedback", error);
         }
     };
-    
+
     if (loading) {
         return <div className="text-center text-lg mt-10 my-4">Loading...</div>;
+    }
+
+    if (error) {
+        return (
+            <div className="text-center text-red-500 mt-10">
+                {error}
+                <br />
+                <a href="/login" className="text-blue-500 underline">
+                    Log in here
+                </a>
+            </div>
+        );
     }
 
     if (!user.placedStatus) {
@@ -69,7 +82,7 @@ const Feedback = () => {
             {feedback && feedback.feedbackFilled ? (
                 <div>
                     <h2 className="text-xl font-bold mb-4">Your Submitted Feedback</h2>
-                    <p><strong>Company:</strong><br/>{feedback.company}</p>
+                    <p><strong>Company:</strong><br />{feedback.company}</p>
                     <p><strong>Package:</strong><br /> {feedback.package}</p>
                     <p><strong>Feedback:</strong><br /> {feedback.feedback}</p>
                     <p><strong>Questions:</strong><br /> {feedback.questions}</p>

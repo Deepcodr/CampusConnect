@@ -6,8 +6,20 @@ function Jobs() {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); // Error state
 
   useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/me`, {
+          withCredentials: true, // Include session cookies
+        });
+      } catch (err) {
+        console.error("Failed to fetch user:", err);
+        setError("Please log in to continue");
+      }
+    };
+
     const fetchJobs = async () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/getJobs`, { withCredentials: true });
@@ -19,11 +31,24 @@ function Jobs() {
       }
     }
 
+    fetchUser();
     fetchJobs();
   }, []);
 
   if (loading) {
     return <div>Loading jobs...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-red-500 mt-10">
+        {error}
+        <br />
+        <a href="/login" className="text-blue-500 underline">
+          Log in here
+        </a>
+      </div>
+    );
   }
 
   if (jobs.length === 0) {

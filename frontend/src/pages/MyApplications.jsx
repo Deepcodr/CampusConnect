@@ -7,6 +7,18 @@ const MyApplications = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/me`, {
+                    withCredentials: true, // Include session cookies
+                });
+                fetchApplications();
+            } catch (err) {
+                console.error("Failed to fetch user:", err);
+                setError("Please log in to continue");
+            }
+        };
+
         const fetchApplications = async () => {
             try {
                 const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/myapplications`, { withCredentials: true });
@@ -19,7 +31,8 @@ const MyApplications = () => {
             }
         };
 
-        fetchApplications();
+        fetchUser();
+        
     }, []);
 
     if (loading) {

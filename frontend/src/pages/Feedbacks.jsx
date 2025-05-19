@@ -7,8 +7,20 @@ const Feedbacks = () => {
     const [selectedFeedback, setSelectedFeedback] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null); // Error state
 
     useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/me`, {
+                    withCredentials: true, // Include session cookies
+                });
+            } catch (err) {
+                console.error("Failed to fetch user:", err);
+                setError("Please log in to continue");
+            }
+        };
+
         const fetchFeedbacks = async () => {
             try {
                 const res = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/feedback/all`);
@@ -22,6 +34,7 @@ const Feedbacks = () => {
                 setLoading(false);
             }
         };
+        fetchUser();
         fetchFeedbacks();
     }, []);
 
@@ -29,6 +42,18 @@ const Feedbacks = () => {
     const toggleDropdown = (company) => {
         setExpandedCompany(expandedCompany === company ? null : company);
     };
+
+    if (error) {
+        return (
+            <div className="text-center text-red-500 mt-10">
+                {error}
+                <br />
+                <a href="/login" className="text-blue-500 underline">
+                    Log in here
+                </a>
+            </div>
+        );
+    }
 
     return (
         <div className="p-6">

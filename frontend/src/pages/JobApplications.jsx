@@ -6,8 +6,22 @@ const JobApplications = () => {
     const [applicants, setApplicants] = useState([]);
     const [loading, setLoading] = useState(true);
     const { jobId } = useParams();
+    const [error,setError] = useState(null);
 
     useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/me`, {
+                    withCredentials: true, // Include session cookies
+                });
+            } catch (err) {
+                console.log(err);
+                setError("Please log in to continue");
+            }
+        };
+
+        fetchUserData();
+
         const fetchApplicants = async () => {
             try {
                 const response = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/api/admin/job/${jobId}/applicants`);
@@ -38,6 +52,19 @@ const JobApplications = () => {
     };
 
     if (loading) return <div>Loading applicants...</div>;
+
+    if (error) {
+        return (
+            <div className="text-center text-red-500 mt-10">
+                {error}
+                <br />
+                <a href="/login" className="text-blue-500 underline">
+                    Log in here
+                </a>
+            </div>
+        );
+    }
+
 
     return (
         <div className="min-h-screen bg-slate-50 text-stone-950">

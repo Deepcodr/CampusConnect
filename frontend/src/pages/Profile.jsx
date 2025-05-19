@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const Profile = () => {
-  const [showToast,setShowToast] = useState(sessionStorage.getItem("showLoginToast"));
+  const [showToast, setShowToast] = useState(sessionStorage.getItem("showLoginToast"));
   const [user, setUser] = useState(null); // State to store user data
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
@@ -20,10 +20,9 @@ const Profile = () => {
   const divRegex = /^[A-Z]$/;
 
   useEffect(() => {
-    if(showToast==="true")
-    {
+    if (showToast === "true") {
       const timer = setTimeout(() => {
-        sessionStorage.setItem("showLoginToast","false");
+        sessionStorage.setItem("showLoginToast", "false");
         setShowToast("false");
       }, 3000);
     }
@@ -140,7 +139,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 text-stone-950">
-      {showToast==="true" && <div className="absolute top-0 start-1/2 -translate-x-1/2 p-2">
+      {showToast === "true" && <div className="absolute top-0 start-1/2 -translate-x-1/2 p-2">
         <div className="max-w-xs bg-teal-500 text-sm text-white rounded-xl shadow-lg" role="alert" tabIndex="-1" aria-labelledby="hs-toast-solid-color-teal-label">
           <div id="hs-toast-solid-color-teal-label" className="flex p-4">
             Login Successful!
@@ -312,7 +311,7 @@ const Profile = () => {
                       <strong>Engineering Percentage:</strong> {user.engineeringPercentage ? user.engineeringPercentage : "Not Filled"}
                     </p>
                     <p className="mb-2">
-                      <strong>Active Backlog:</strong> {user.activeBacklog>=0 ? user.activeBacklog : "Not Filled"}
+                      <strong>Active Backlog:</strong> {user.activeBacklog >= 0 ? user.activeBacklog : "Not Filled"}
                     </p>
                     <p className="mb-2">
                       <strong>Resume :</strong> {user.resume ? <a href={`${import.meta.env.VITE_BACKEND_API_URL}/resume`} target="_blank" className="text-blue-500 underline">View Resume</a> : "No resume uploaded"}
@@ -324,10 +323,10 @@ const Profile = () => {
                   </div>
                   {/* {
                     !user.profileCompletion ?  */}
-                    <div className="flex gap-4 mt-4">
-                      <button onClick={() => setIsEditing(true)} className="bg-blue-500 text-white px-4 py-2 rounded">Edit</button>
-                    </div>
-                     {/* : <></>
+                  <div className="flex gap-4 mt-4">
+                    <button onClick={() => setIsEditing(true)} className="bg-blue-500 text-white px-4 py-2 rounded">Edit</button>
+                  </div>
+                  {/* : <></>
                   } */}
                 </>
               }
